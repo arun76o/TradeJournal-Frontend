@@ -1,0 +1,84 @@
+<!-- login.component.html -->
+<div class="login-container">
+  <mat-card class="login-card">
+    <mat-card-header>
+      <div class="logo-icon">
+        <mat-icon>trending_up</mat-icon>
+      </div>
+      <mat-card-title>Trade Journal</mat-card-title>
+      <mat-card-subtitle>Track your trades, grow your portfolio</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- Email Field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Email</mat-label>
+        <input
+          matInput
+          [(ngModel)]="email"
+          type="email"
+          placeholder="your@email.com"
+          autocomplete="email">
+        <mat-icon matPrefix>email</mat-icon>
+      </mat-form-field>
+
+      <!-- Password Field -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Password</mat-label>
+        <input
+          matInput
+          [type]="hidePassword ? 'password' : 'text'"
+          [(ngModel)]="password"
+          placeholder="Enter your password"
+          autocomplete="current-password">
+        <mat-icon matPrefix>lock</mat-icon>
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          (click)="hidePassword = !hidePassword"
+          [attr.aria-label]="'Hide password'">
+          <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <!-- Login Button -->
+      <button
+        mat-raised-button
+        color="primary"
+        class="full-width login-btn"
+        (click)="login()"
+        [disabled]="isLoading">
+        <mat-icon *ngIf="!isLoading">login</mat-icon>
+        <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+        <span *ngIf="!isLoading">Login</span>
+        <span *ngIf="isLoading">Logging in...</span>
+      </button>
+
+      <!-- Register Button -->
+      <button
+        mat-stroked-button
+        color="primary"
+        class="full-width register-btn"
+        (click)="registerPage()">
+        <mat-icon>person_add</mat-icon>
+        Create Account
+      </button>
+
+      <!-- Divider -->
+      <div class="divider">
+        <span>or</span>
+      </div>
+
+      <!-- Google Login Button -->
+      <button
+        mat-stroked-button
+        class="full-width google-btn"
+        (click)="loginWithGoogle()"
+        [disabled]="isLoading">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" class="google-icon">
+        Login with Google
+      </button>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -1,0 +1,164 @@
+<div class="tj-page">
+  <app-page-header title="Trade History" subtitle="View, filter, and export all your trades">
+    <div actions class="tj-btn-group">
+      <button mat-stroked-button class="tj-export-btn" (click)="exportCsv()">
+        <mat-icon>table_chart</mat-icon> Export Excel
+      </button>
+      <button mat-stroked-button class="tj-export-btn" (click)="exportPdf()">
+        <mat-icon>picture_as_pdf</mat-icon> Export PDF
+      </button>
+    </div>
+  </app-page-header>
+
+  <div class="tj-card">
+    @if (isLoading) {
+      <div class="tj-loading"><mat-spinner diameter="40"></mat-spinner><p>Loading trades...</p></div>
+    } @else {
+      <div class="tj-table-toolbar">
+        <div class="tj-topbar-search tj-toolbar-search">
+          <mat-icon>search</mat-icon>
+          <input type="text" placeholder="Search symbol, strategy..." [(ngModel)]="searchQuery" (input)="applyFilters()" />
+        </div>
+        <mat-form-field appearance="outline" class="tj-filter-field tj-filter-side">
+          <mat-label>Side</mat-label>
+          <mat-select [(ngModel)]="filterSide" (selectionChange)="applyFilters()">
+            <mat-option value="">All</mat-option>
+            <mat-option value="BUY">Buy</mat-option>
+            <mat-option value="SELL">Sell</mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="tj-filter-field tj-filter-strategy">
+          <mat-label>Strategy</mat-label>
+          <mat-select [(ngModel)]="filterStrategy" (selectionChange)="applyFilters()">
+            <mat-option value="">All</mat-option>
+            @for (s of strategies; track s) {
+              <mat-option [value]="s">{{ s }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      @if (filteredTrades.length === 0) {
+        <div class="tj-no-data" style="padding: 60px">
+          <mat-icon>receipt_long</mat-icon>
+          <p>No trades found matching your criteria.</p>
+        </div>
+      } @else {
+        <div class="tj-table-container">
+          <table class="tj-table">
+            <thead>
+              <tr>
+                <th (click)="onSort('symbol')" [class.sorted]="sortField === 'symbol'">Symbol <mat-icon class="sort-icon">swap_vert</mat-icon></th>
+                <th (click)="onSort('side')" [class.sorted]="sortField === 'side'">Side <mat-icon class="sort-icon">swap_vert</mat-icon></th>
+                <th (click)="onSort('entryPrice')" [class.sorted]="sortField === 'entryPrice'">Entry <mat-icon class="sort-icon">swap_vert</mat-icon></th>
+                <th (click)="onSort('exitPrice')" [class.sorted]="sortField === 'exitPrice'">Exit <mat-icon class="sort-icon">swap_vert</mat-icon></th>
+                <th (click)="onSort('quantity')" [class.sorted]="sortField === 'quantity'">Qty <mat-icon class="sort-icon">swap_vert</mat-icon></th>
+                <th (click)="onSort('grossProfitINR')">Gross P&L</th>
+                <th (click)="onSort('fees')">Fees</th>
+                <th (click)="onSort('netProfitINR')" [class.sorted]="sortField === 'netProfitINR'">Net P&L<mat-icon class="sort-icon">swap_vert</mat-icon></th>
+                <th (click)="onSort('strategy')" [class.sorted]="sortField === 'strategy'">Strategy <mat-icon class="sort-icon">swap_vert</mat-icon></th>
+                <th (click)="onSort('tradeDate')" [class.sorted]="sortField === 'tradeDate'">Date <mat-icon class="sort-icon">swap_vert</mat-icon></th>
+                <th>Screenshot</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (trade of getPaginatedTrades(); track trade.id) {
+                <tr>
+                  <!-- <td class="tj-symbol-cell"><mat-icon>candlestick_chart</mat-icon><strong>{{ trade.symbol }}</strong></td> -->
+                   <td><div class="tj-symbol-cell">  <mat-icon>candlestick_chart</mat-icon>  <strong>{{ trade.symbol }}</strong></div></td>
+                  <td><span class="tj-side-badge" [class.buy]="trade.side === 'BUY'" [class.sell]="trade.side === 'SELL'">{{ trade.side }}</span></td>
+                  <td class="tj-price-cell">{{ trade.entryPrice | number:'1.2-5' }}</td>
+                  <td class="tj-price-cell">{{ trade.exitPrice | number:'1.2-5' }}</td>
+                  <td>{{ trade.quantity }}</td>
+                  <td>{{ formatCurrency(trade.grossProfitINR) }}</td>
+                  <td class="negative">{{ formatCurrency(trade.fees) }}</td>
+                  <td><span class="tj-pnl-badge" [class.positive]="trade.netProfitINR >= 0" [class.negative]="trade.netProfitINR < 0">{{ formatCurrency(trade.netProfitINR) }}</span></td>
+                  <td>{{ trade.strategy }}</td>
+                  <td class="tj-date-cell"><mat-icon>event</mat-icon>{{ trade.tradeDate | date:'dd MMM yyyy' }}</td>
+                  <td>  @if (trade.imageUrls && trade.imageUrls.length > 0) {    <img      [src]="trade.imageUrls[0]"     class="trade-thumbnail"      (click)="openGallery(trade.imageUrls, 0)">  } @else {    <span>-</span>  }</td>
+                  <td><span class="tj-status-badge" [class.win]="getStatus(trade) === 'WIN'" [class.loss]="getStatus(trade) === 'LOSS'" [class.breakeven]="getStatus(trade) === 'BREAKEVEN'">{{ getStatus(trade) }}</span></td>
+                  <td class="tj-actions-cell">
+                    <button mat-icon-button (click)="editTrade(trade)"><mat-icon>edit</mat-icon></button>
+                    <button mat-icon-button color="warn" (click)="deleteTrade(trade.id)"><mat-icon>delete</mat-icon></button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tj-card-footer tj-card-footer-row">
+          <div class="tj-stat-row tj-card-footer-stats">
+            <div class="tj-stat-item"><div class="label">Showing</div><div class="value">{{ filteredTrades.length }}</div></div>
+            <div class="tj-stat-item"><div class="label">Total P&L</div><div class="value" [class.positive]="getTotalPnL() >= 0" [class.negative]="getTotalPnL() < 0">{{ formatCurrency(getTotalPnL()) }}</div></div>
+          </div>
+          <mat-paginator [length]="totalTrades" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" (page)="onPageChange($event)" showFirstLastButtons></mat-paginator>
+        </div>
+      }
+    }
+  </div>
+</div>
+@if (showImageModal) {
+
+<div class="image-modal-overlay" (click)="closeImage()">
+
+  <div class="image-modal-content"
+       (click)="$event.stopPropagation()">
+
+    <button class="close-btn"
+            (click)="closeImage()">
+      ✕
+    </button>
+
+    <button class="nav-btn left"
+            (click)="previousImage()"
+            [disabled]="currentImageIndex===0">
+      ❮
+    </button>
+
+   <div class="image-wrapper">
+     <img
+    [src]="galleryImages[currentImageIndex]"
+    class="full-image"
+    [style.transform]="'scale(' + zoomLevel + ')'">
+    </div>
+
+      
+    <div class="zoom-controls">
+
+  <button mat-mini-fab (click)="zoomOut()">
+    <mat-icon>remove</mat-icon>
+  </button>
+
+  <button mat-mini-fab (click)="resetZoom()">
+    <mat-icon>restart_alt</mat-icon>
+  </button>
+
+  <button mat-mini-fab (click)="zoomIn()">
+    <mat-icon>add</mat-icon>
+  </button>
+
+</div>
+
+    <button class="nav-btn right"
+            (click)="nextImage()"
+            [disabled]="currentImageIndex===galleryImages.length-1">
+      ❯
+    </button>
+
+    <div class="image-counter">
+
+      {{currentImageIndex+1}}
+      /
+      {{galleryImages.length}}
+
+    </div>
+
+
+  </div>
+
+</div>
+
+}

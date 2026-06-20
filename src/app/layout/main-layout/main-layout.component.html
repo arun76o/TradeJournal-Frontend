@@ -1,0 +1,157 @@
+<div class="tj-app-shell">
+  @if (isMobileSidebarOpen) {
+    <div
+      class="tj-sidebar-backdrop"
+      (click)="isMobileSidebarOpen = false"
+    ></div>
+  }
+
+  <aside
+    class="tj-sidebar"
+    [class.collapsed]="!isSidebarOpen"
+    [class.open]="isMobileSidebarOpen"
+  >
+    <div class="tj-sidebar-brand">
+      <div class="tj-sidebar-brand-icon">
+        <mat-icon>candlestick_chart</mat-icon>
+      </div>
+      <div class="tj-sidebar-brand-text">
+        <h2>TradeJournal</h2>
+        <span>Pro Terminal</span>
+      </div>
+    </div>
+
+    <nav class="tj-sidebar-nav">
+      <div class="tj-sidebar-section-title">Trading</div>
+      @for (item of getMainNav(); track item.route) {
+        <a
+          class="tj-nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          (click)="isMobileSidebarOpen = false"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span class="tj-nav-label">{{ item.label }}</span>
+        </a>
+      }
+
+      <div class="tj-sidebar-section-title">Insights</div>
+      @for (item of getInsightsNav(); track item.route) {
+        <a
+          class="tj-nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          (click)="isMobileSidebarOpen = false"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span class="tj-nav-label">{{ item.label }}</span>
+        </a>
+      }
+
+      <div class="tj-sidebar-section-title">Account</div>
+      @for (item of getAccountNav(); track item.route) {
+        <a
+          class="tj-nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          (click)="isMobileSidebarOpen = false"
+        >
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span class="tj-nav-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+
+    <div class="tj-sidebar-footer">
+      <button class="tj-nav-item logout" (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span class="tj-nav-label">Logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="tj-main-wrapper">
+    <header class="tj-topbar">
+      <button
+        mat-icon-button
+        class="tj-topbar-toggle"
+        (click)="toggleMenu()"
+        matTooltip="Toggle sidebar"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <div class="tj-topbar-search">
+        <mat-icon>search</mat-icon>
+        <input
+          type="text"
+          placeholder="Search trades, symbols, strategies..."
+          [(ngModel)]="globalSearch"
+          (keyup.enter)="onSearch()"
+        />
+      </div>
+
+      <div class="tj-account-summary">
+        <div>
+          <div class="label">Account P&L</div>
+          <div
+            class="value"
+            [class.positive]="accountPnL >= 0"
+            [class.negative]="accountPnL < 0"
+          >
+            {{ settingsService.formatCurrency(accountPnL) }}
+          </div>
+        </div>
+      </div>
+
+      <div class="tj-topbar-actions">
+        <button
+          mat-icon-button
+          class="tj-notification-btn"
+          matTooltip="Notifications"
+        >
+          <mat-icon
+            [matBadge]="notificationCount"
+            matBadgeColor="warn"
+            matBadgeSize="small"
+            >notifications</mat-icon
+          >
+        </button>
+
+        <button
+          mat-icon-button
+          class="tj-theme-toggle"
+          (click)="toggleTheme()"
+          [matTooltip]="themeService.theme() === 'light' ? 'Dark mode' : 'Light mode'"
+        >
+          <mat-icon>{{
+            themeService.theme() === 'light' ? 'dark_mode' : 'light_mode'
+          }}</mat-icon>
+        </button>
+
+        <button mat-icon-button  class="tj-avatar-btn" [matMenuTriggerFor]="userMenu" matTooltip="Account">
+          <div class="tj-user-avatar">{{ userInitials }}</div>
+        </button>
+
+        <mat-menu #userMenu="matMenu">
+          <button mat-menu-item routerLink="/profile">
+            <mat-icon>person</mat-icon>
+            <span>Profile</span>
+          </button>
+          <button mat-menu-item routerLink="/settings">
+            <mat-icon>settings</mat-icon>
+            <span>Settings</span>
+          </button>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Logout</span>
+          </button>
+        </mat-menu>
+      </div>
+    </header>
+
+    <main class="tj-page-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

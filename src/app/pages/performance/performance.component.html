@@ -1,0 +1,37 @@
+<div class="tj-page">
+  <app-page-header title="Performance" subtitle="Track equity growth, drawdowns, and trading consistency"></app-page-header>
+
+  @if (isLoading) {
+    <div class="tj-loading"><mat-spinner diameter="40"></mat-spinner></div>
+  } @else {
+    <div class="tj-kpi-grid">
+      <app-kpi-card label="Total P&L" [value]="formatCurrency(stats.totalPnL)" icon="account_balance_wallet" iconColor="primary" [valueClass]="stats.totalPnL >= 0 ? 'positive' : 'negative'" />
+      <app-kpi-card label="Expectancy" [value]="formatCurrency(expectancy)" icon="calculate" iconColor="info" />
+      <app-kpi-card label="Avg Win" [value]="formatCurrency(avgWin)" icon="trending_up" iconColor="success" valueClass="positive" />
+      <app-kpi-card label="Avg Loss" [value]="formatCurrency(avgLoss)" icon="trending_down" iconColor="danger" valueClass="negative" />
+      <app-kpi-card label="Max Drawdown" [value]="formatCurrency(drawdown.maxDrawdown)" icon="waterfall_chart" iconColor="danger" valueClass="negative" />
+      <app-kpi-card label="Win Streak" [value]="largestWinStreak" icon="local_fire_department" iconColor="success" />
+      <app-kpi-card label="Loss Streak" [value]="largestLossStreak" icon="whatshot" iconColor="danger" />
+      <app-kpi-card label="Win Rate" [value]="stats.winRate + '%'" icon="percent" iconColor="warning" />
+    </div>
+
+    <div class="tj-chart-card">
+      <div class="tj-chart-header"><h3><mat-icon>show_chart</mat-icon> Equity Curve & Drawdown Analysis</h3></div>
+      <div class="tj-chart-body"><canvas baseChart [data]="equityChart" [options]="chartOptions" type="line"></canvas></div>
+    </div>
+
+    <div class="tj-card" style="margin-top: 24px">
+      <div class="tj-card-header"><h3><mat-icon>assessment</mat-icon> Risk Metrics</h3></div>
+      <div class="tj-card-body">
+        <div class="tj-stat-row">
+          <div class="tj-stat-item"><div class="label">Profit Factor</div><div class="value">{{ profitFactorDisplay }}</div></div>
+          <div class="tj-stat-item"><div class="label">Risk/Reward Avg</div><div class="value">{{ stats.averageRR.toFixed(2) }}</div></div>
+          <div class="tj-stat-item"><div class="label">Drawdown %</div><div class="value negative">{{ drawdown.maxDrawdownPercent.toFixed(1) }}%</div></div>
+          <div class="tj-stat-item"><div class="label">Net Profit</div><div class="value positive">{{ formatCurrency(stats.netProfit) }}</div></div>
+          <div class="tj-stat-item"><div class="label">Net Loss</div><div class="value negative">{{ formatCurrency(stats.netLoss) }}</div></div>
+          <div class="tj-stat-item"><div class="label">Total Trades</div><div class="value">{{ stats.totalTrades }}</div></div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

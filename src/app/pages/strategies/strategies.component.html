@@ -1,0 +1,33 @@
+<div class="tj-page">
+  <app-page-header title="Strategies" subtitle="Compare performance across your trading strategies"></app-page-header>
+
+  @if (isLoading) {
+    <div class="tj-loading"><mat-spinner diameter="40"></mat-spinner></div>
+  } @else {
+    <div class="tj-grid-2-1">
+      <div class="tj-card">
+        <div class="tj-card-header"><h3><mat-icon>psychology</mat-icon> Strategy Breakdown</h3></div>
+        <div class="tj-card-body">
+          @for (s of strategies; track s.strategy) {
+            <div class="tj-strategy-card" style="margin-bottom: 16px">
+              <h4>{{ s.strategy }}</h4>
+              <div class="tj-strategy-stats">
+                <div class="tj-stat-item"><div class="label">Trades</div><div class="value">{{ s.trades }}</div></div>
+                <div class="tj-stat-item"><div class="label">Win Rate</div><div class="value">{{ s.winRate }}%</div></div>
+                <div class="tj-stat-item"><div class="label">Total P&L</div><div class="value" [class.positive]="s.totalPnL >= 0" [class.negative]="s.totalPnL < 0">{{ formatCurrency(s.totalPnL) }}</div></div>
+                <div class="tj-stat-item"><div class="label">Avg P&L</div><div class="value" [class.positive]="s.avgPnL >= 0" [class.negative]="s.avgPnL < 0">{{ formatCurrency(s.avgPnL) }}</div></div>
+              </div>
+            </div>
+          } @empty {
+            <p style="color: var(--tj-text-muted); text-align: center; padding: 40px">No strategies found. Tag trades with a strategy to see breakdown.</p>
+          }
+        </div>
+      </div>
+
+      <div class="tj-chart-card">
+        <div class="tj-chart-header"><h3><mat-icon>leaderboard</mat-icon> Strategy P&L</h3></div>
+        <div class="tj-chart-body"><canvas baseChart [data]="chartData" [options]="chartOptions" type="bar"></canvas></div>
+      </div>
+    </div>
+  }
+</div>

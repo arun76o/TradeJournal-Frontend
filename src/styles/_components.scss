@@ -1,0 +1,915 @@
+@use 'variables' as *;
+
+// ─── Page Layout ─────────────────────────────────────────────────
+
+.tj-page {
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
+  min-width: 0;
+}
+
+.tj-page-header {
+  margin-bottom: $spacing-lg;
+  animation: tj-slide-up 0.4s ease-out;
+
+  h1 {
+    margin: 0 0 $spacing-xs;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--tj-text-primary);
+    letter-spacing: -0.02em;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--tj-text-secondary);
+  }
+}
+
+.tj-page-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+}
+
+// ─── KPI Cards ───────────────────────────────────────────────────
+
+.tj-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.tj-kpi-grid-compact {
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 600px;
+}
+
+.tj-kpi-card {
+  background: var(--tj-bg-secondary);
+  border: 1px solid var(--tj-border);
+  border-radius: $border-radius-lg;
+  padding: $spacing-md $spacing-lg;
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-md;
+  box-shadow: var(--tj-shadow-card);
+  transition: transform $transition-fast, box-shadow $transition-fast;
+  animation: tj-slide-up 0.45s ease-out both;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--tj-shadow-md);
+  }
+}
+
+.tj-kpi-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: $border-radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+    color: white;
+  }
+
+  &.primary { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+  &.success { background: linear-gradient(135deg, #10b981, #059669); }
+  &.danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
+  &.warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  &.info { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+  &.neutral { background: linear-gradient(135deg, #64748b, #475569); }
+}
+
+.tj-kpi-content {
+  flex: 1;
+  min-width: 0;
+
+  .tj-kpi-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--tj-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+  }
+
+  .tj-kpi-value {
+    display: block;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--tj-text-primary);
+    font-family: $font-family-mono;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+
+    &.positive { color: var(--tj-profit); }
+    &.negative { color: var(--tj-loss); }
+  }
+
+  .tj-kpi-change {
+    font-size: 11px;
+    color: var(--tj-text-muted);
+    margin-top: 2px;
+  }
+}
+
+// ─── Cards & Panels ──────────────────────────────────────────────
+
+.tj-card {
+  background: var(--tj-bg-secondary);
+  border: 1px solid var(--tj-border);
+  border-radius: $border-radius-lg;
+  box-shadow: var(--tj-shadow-card);
+  overflow: hidden;
+  animation: tj-slide-up 0.45s ease-out both;
+}
+
+.tj-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1px solid var(--tj-border-light);
+  gap: $spacing-md;
+
+  h2, h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--tj-text-primary);
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      color: var(--tj-accent);
+    }
+  }
+}
+
+.tj-card-body {
+  padding: $spacing-lg;
+}
+
+.tj-card-footer {
+  padding: $spacing-md $spacing-lg;
+  border-top: 1px solid var(--tj-border-light);
+  background: var(--tj-bg-tertiary);
+}
+
+// ─── Grid Layouts ────────────────────────────────────────────────
+
+.tj-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.tj-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.tj-grid-2-1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+@media (max-width: $breakpoint-laptop-max) {
+  .tj-grid-2, .tj-grid-3, .tj-grid-2-1 {
+    grid-template-columns: 1fr;
+  }
+
+  .tj-kpi-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+@media (max-width: $breakpoint-tablet-max) {
+  .tj-page-header h1 {
+    font-size: 22px;
+  }
+
+  .tj-kpi-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: $spacing-sm;
+  }
+
+  .tj-kpi-grid-compact {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 100%;
+  }
+
+  .tj-kpi-card {
+    padding: $spacing-md;
+  }
+
+  .tj-kpi-content .tj-kpi-value {
+    font-size: 18px;
+  }
+
+  .tj-card-header {
+    flex-wrap: wrap;
+    padding: $spacing-md;
+  }
+
+  .tj-card-body {
+    padding: $spacing-md;
+  }
+
+  .tj-strategy-stats {
+    flex-wrap: wrap;
+    gap: $spacing-sm !important;
+  }
+
+  .tj-strategy-stats .tj-stat-item {
+    flex: 1 1 calc(50% - #{$spacing-sm});
+    min-width: 120px;
+  }
+
+  .tj-profile-header {
+    flex-wrap: wrap;
+    text-align: center;
+    justify-content: center;
+
+    > div:last-child {
+      width: 100%;
+    }
+  }
+
+  .tj-settings-row {
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+}
+
+@media (max-width: $breakpoint-mobile-max) {
+  .tj-page-header h1 {
+    font-size: 20px;
+  }
+
+  .tj-page-header p {
+    font-size: 13px;
+  }
+
+  .tj-kpi-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .tj-kpi-grid-compact {
+    grid-template-columns: 1fr;
+  }
+
+  .tj-kpi-icon {
+    width: 38px;
+    height: 38px;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .tj-stat-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tj-heatmap {
+    gap: 4px;
+  }
+
+  .tj-heatmap-cell {
+    font-size: 9px;
+
+    .day-label {
+      font-size: 8px;
+    }
+  }
+
+  .tj-calendar-day {
+    padding: 4px;
+    font-size: 11px;
+
+    .day-pnl {
+      font-size: 9px;
+    }
+  }
+}
+
+// ─── Tables ──────────────────────────────────────────────────────
+
+.tj-table-toolbar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1px solid var(--tj-border-light);
+  flex-wrap: wrap;
+
+  .tj-filter-field {
+    min-width: 140px;
+    flex: 0 1 auto;
+  }
+
+  .tj-topbar-search {
+    flex: 1 1 200px;
+    max-width: 280px;
+    min-width: 0;
+  }
+}
+
+.tj-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+}
+
+.tj-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    background: var(--tj-bg-tertiary);
+  }
+
+  th {
+    padding: 12px $spacing-md;
+    text-align: left;
+    font-weight: 600;
+    color: var(--tj-text-secondary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--tj-border);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+
+    &:hover {
+      color: var(--tj-text-primary);
+    }
+
+    .sort-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      vertical-align: middle;
+      margin-left: 2px;
+      opacity: 0.4;
+    }
+
+    &.sorted .sort-icon {
+      opacity: 1;
+      color: var(--tj-accent);
+    }
+  }
+
+  td {
+    padding: 12px $spacing-md;
+    border-bottom: 1px solid var(--tj-border-light);
+    color: var(--tj-text-primary);
+    font-size: 13px;
+  }
+
+  tbody tr {
+    transition: background $transition-fast;
+
+    &:hover {
+      background: var(--tj-bg-tertiary);
+    }
+  }
+}
+
+.tj-symbol-cell {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  gap: 8px;
+  height: 100%;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--tj-accent);
+  }
+
+  strong {
+    font-weight: 600;
+  }
+}
+
+.tj-side-badge {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  align-items: center;
+  justify-content: center;
+  min-width: 50px;
+  height: 30px;
+
+  &.buy {
+    background: var(--tj-profit-bg);
+    color: var(--tj-profit);
+  }
+
+  &.sell {
+    background: var(--tj-loss-bg);
+    color: var(--tj-loss);
+  }
+}
+
+.tj-pnl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: $font-family-mono;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  &.positive {
+    background: var(--tj-profit-bg);
+    color: var(--tj-profit);
+  }
+
+  &.negative {
+    background: var(--tj-loss-bg);
+    color: var(--tj-loss);
+  }
+}
+
+.tj-status-badge {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+
+  &.win { background: var(--tj-profit-bg); color: var(--tj-profit); }
+  &.loss { background: var(--tj-loss-bg); color: var(--tj-loss); }
+  &.breakeven { background: var(--tj-accent-subtle); color: var(--tj-accent); }
+}
+
+.tj-price-cell {
+  font-family: $font-family-mono;
+  font-weight: 500;
+}
+
+.tj-date-cell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--tj-text-secondary);
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    color: var(--tj-text-muted);
+  }
+}
+
+.tj-actions-cell {
+  display: flex;
+  gap: 2px;
+}
+
+.tj-no-data {
+  text-align: center;
+  padding: $spacing-2xl $spacing-lg !important;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: var(--tj-text-muted);
+    margin-bottom: $spacing-md;
+  }
+
+  p {
+    color: var(--tj-text-muted);
+    margin: 0;
+    font-size: 14px;
+  }
+}
+
+// ─── Buttons ─────────────────────────────────────────────────────
+
+.tj-btn-group {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.tj-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px !important;
+}
+
+// ─── Loading ─────────────────────────────────────────────────────
+
+.tj-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-2xl;
+  gap: $spacing-md;
+  color: var(--tj-text-muted);
+}
+
+.tj-shimmer {
+  background: linear-gradient(90deg, var(--tj-bg-tertiary) 25%, var(--tj-border) 50%, var(--tj-bg-tertiary) 75%);
+  background-size: 200% 100%;
+  animation: tj-shimmer 1.5s infinite;
+  border-radius: $border-radius-sm;
+}
+
+// ─── Heatmap ─────────────────────────────────────────────────────
+
+.tj-heatmap {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  padding: $spacing-md 0;
+}
+
+.tj-heatmap-cell {
+  aspect-ratio: 1;
+  border-radius: $border-radius-sm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  transition: transform $transition-fast;
+
+  &:hover {
+    transform: scale(1.08);
+  }
+
+  .day-label {
+    font-size: 9px;
+    opacity: 0.8;
+    margin-bottom: 2px;
+  }
+
+  &.level-0 { background: var(--tj-bg-tertiary); color: var(--tj-text-muted); }
+  &.level-1 { background: rgba(16, 185, 129, 0.2); color: var(--tj-profit); }
+  &.level-2 { background: rgba(16, 185, 129, 0.4); color: var(--tj-profit); }
+  &.level-3 { background: rgba(16, 185, 129, 0.65); color: #fff; }
+  &.level-neg-1 { background: rgba(239, 68, 68, 0.2); color: var(--tj-loss); }
+  &.level-neg-2 { background: rgba(239, 68, 68, 0.4); color: var(--tj-loss); }
+  &.level-neg-3 { background: rgba(239, 68, 68, 0.65); color: #fff; }
+}
+
+// ─── Stats Row ───────────────────────────────────────────────────
+
+.tj-stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: $spacing-md;
+}
+
+.tj-stat-item {
+  padding: $spacing-md;
+  background: var(--tj-bg-tertiary);
+  border-radius: $border-radius-md;
+  border: 1px solid var(--tj-border-light);
+
+  .label {
+    font-size: 11px;
+    color: var(--tj-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .value {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--tj-text-primary);
+    font-family: $font-family-mono;
+
+    &.positive { color: var(--tj-profit); }
+    &.negative { color: var(--tj-loss); }
+  }
+}
+
+// ─── Calendar ────────────────────────────────────────────────────
+
+.tj-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.tj-calendar-header {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--tj-text-muted);
+  padding: $spacing-sm;
+  text-transform: uppercase;
+}
+
+.tj-calendar-day {
+  aspect-ratio: 1;
+  border: 1px solid var(--tj-border-light);
+  border-radius: $border-radius-sm;
+  padding: 6px;
+  font-size: 12px;
+  background: var(--tj-bg-secondary);
+  cursor: default;
+  transition: border-color $transition-fast;
+
+  .day-num {
+    font-weight: 600;
+    color: var(--tj-text-primary);
+    margin-bottom: 4px;
+  }
+
+  .day-pnl {
+    font-size: 10px;
+    font-family: $font-family-mono;
+    font-weight: 600;
+
+    &.positive { color: var(--tj-profit); }
+    &.negative { color: var(--tj-loss); }
+  }
+
+  &.has-trades {
+    border-color: var(--tj-accent);
+    background: var(--tj-accent-subtle);
+  }
+
+  &.other-month {
+    opacity: 0.35;
+  }
+}
+
+// ─── Strategy Cards ──────────────────────────────────────────────
+
+.tj-strategy-card {
+  padding: $spacing-lg;
+  border: 1px solid var(--tj-border);
+  border-radius: $border-radius-lg;
+  background: var(--tj-bg-secondary);
+
+  h4 {
+    margin: 0 0 $spacing-sm;
+    font-size: 15px;
+    color: var(--tj-text-primary);
+  }
+
+  .tj-strategy-stats {
+    display: flex;
+    gap: $spacing-lg;
+    margin-top: $spacing-md;
+  }
+}
+
+// ─── Settings ────────────────────────────────────────────────────
+
+.tj-settings-section {
+  margin-bottom: $spacing-xl;
+
+  h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tj-text-primary);
+    margin: 0 0 $spacing-md;
+    padding-bottom: $spacing-sm;
+    border-bottom: 1px solid var(--tj-border);
+  }
+}
+
+.tj-settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md 0;
+  border-bottom: 1px solid var(--tj-border-light);
+
+  .setting-label {
+    font-size: 14px;
+    color: var(--tj-text-primary);
+  }
+
+  .setting-desc {
+    font-size: 12px;
+    color: var(--tj-text-muted);
+    margin-top: 2px;
+  }
+}
+
+// ─── Profile ─────────────────────────────────────────────────────
+
+.tj-profile-header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+
+  .avatar-large {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--tj-kpi-icon-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 32px;
+    font-weight: 700;
+  }
+}
+
+// ─── Calendar Nav ────────────────────────────────────────────────
+
+.tj-calendar-nav {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.tj-calendar-month-label {
+  min-width: 160px;
+  text-align: center;
+}
+
+@media (max-width: $breakpoint-tablet-max) {
+  .tj-calendar-nav {
+    width: 100%;
+    justify-content: center;
+    gap: $spacing-sm;
+  }
+
+  .tj-calendar-month-label {
+    min-width: 120px;
+    flex: 1;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: $breakpoint-mobile-max) {
+  .tj-calendar-nav {
+    justify-content: space-between;
+    width: 100%;
+    gap: 6px;
+  }
+
+  .tj-calendar-month-label {
+    min-width: 100px;
+    max-width: 220px;
+    flex: 1 1 auto;
+    font-size: 12px;
+  }
+
+  .tj-kpi-grid-compact {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+
+  .tj-calendar-body {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    min-width: 0;
+  }
+
+  .tj-calendar-grid {
+    width: max-content;
+    min-width: 700px;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(100px, 1fr));
+    gap: 4px;
+  }
+
+  .tj-calendar-header,
+  .tj-calendar-day {
+    min-width: 100px;
+  }
+
+  .tj-calendar-day {
+    padding: 8px;
+    font-size: 11px;
+  }
+
+  .tj-calendar-day .day-pnl {
+    font-size: 9px;
+  }
+}
+
+// ─── Scrollbar ───────────────────────────────────────────────────
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--tj-scrollbar-thumb) var(--tj-scrollbar-track);
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--tj-scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--tj-scrollbar-thumb);
+  border-radius: 3px;
+}
+
+// ─── Card Footer & Paginator ─────────────────────────────────────
+
+.tj-card-footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tj-card-footer-stats {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+@media (max-width: $breakpoint-tablet-max) {
+  .tj-table-toolbar {
+    padding: $spacing-md;
+
+    .tj-filter-field {
+      flex: 1 1 calc(50% - #{$spacing-sm});
+      min-width: 120px;
+    }
+
+    .tj-topbar-search {
+      flex: 1 1 100%;
+      max-width: 100%;
+    }
+  }
+
+  .tj-card-footer-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mat-mdc-paginator {
+    width: 100%;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: $breakpoint-mobile-max) {
+  .tj-table-toolbar .tj-filter-field {
+    flex: 1 1 100%;
+  }
+
+  .tj-table th,
+  .tj-table td {
+    padding: 10px $spacing-sm;
+    font-size: 12px;
+  }
+
+  .tj-actions-cell {
+    gap: 0;
+  }
+}

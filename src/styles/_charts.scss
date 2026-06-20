@@ -1,0 +1,137 @@
+@use 'variables' as *;
+
+.tj-chart-card {
+  background: var(--tj-bg-secondary);
+  border: 1px solid var(--tj-border);
+  border-radius: $border-radius-lg;
+  box-shadow: var(--tj-shadow-card);
+  overflow: hidden;
+  animation: tj-slide-up 0.45s ease-out both;
+  min-width: 0;
+}
+
+.tj-chart-header {
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1px solid var(--tj-border-light);
+
+  h3 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--tj-text-primary);
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: var(--tj-accent);
+    }
+  }
+
+  p {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: var(--tj-text-muted);
+  }
+}
+
+.tj-chart-body {
+  padding: $spacing-md $spacing-lg $spacing-lg;
+  position: relative;
+  min-height: 260px;
+  width: 100%;
+  overflow: hidden;
+
+  canvas {
+    max-width: 100%;
+    max-height: 320px;
+    height: auto !important;
+  }
+
+  &.compact {
+    min-height: 200px;
+
+    canvas {
+      max-height: 220px;
+    }
+  }
+}
+
+.tj-charts-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.tj-charts-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+@media (max-width: $breakpoint-laptop-max) {
+  .tj-charts-row,
+  .tj-charts-row-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .tj-chart-body {
+    min-height: 240px;
+
+    canvas {
+      max-height: 280px;
+    }
+  }
+}
+
+@media (max-width: $breakpoint-tablet-max) {
+  .tj-chart-header {
+    padding: $spacing-md;
+  }
+
+  .tj-chart-body {
+    padding: $spacing-md;
+    min-height: 220px;
+
+    canvas {
+      max-height: 260px;
+    }
+
+    &.compact {
+      min-height: 180px;
+
+      canvas {
+        max-height: 200px;
+      }
+    }
+  }
+
+  .tj-charts-row,
+  .tj-charts-row-3 {
+    gap: $spacing-md;
+  }
+}
+
+@media (max-width: $breakpoint-mobile-max) {
+  .tj-chart-body {
+    min-height: 200px;
+
+    canvas {
+      max-height: 220px;
+    }
+
+    &.compact {
+      min-height: 160px;
+
+      canvas {
+        max-height: 180px;
+      }
+    }
+  }
+}

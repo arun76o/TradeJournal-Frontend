@@ -1,0 +1,53 @@
+<div class="tj-page">
+  <app-page-header title="Trading Calendar" subtitle="Visualize daily P&L and trade activity">
+    <div actions class="tj-btn-group tj-calendar-nav">
+      <button mat-stroked-button (click)="prevMonth()"><mat-icon>chevron_left</mat-icon></button>
+      <button mat-stroked-button disabled class="tj-calendar-month-label">{{ monthLabel }}</button>
+      <button mat-stroked-button (click)="nextMonth()"><mat-icon>chevron_right</mat-icon></button>
+    </div>
+  </app-page-header>
+
+  @if (isLoading) {
+    <div class="tj-loading"><mat-spinner diameter="40"></mat-spinner></div>
+  } @else {
+    <div class="tj-kpi-grid tj-kpi-grid-compact">
+      <div class="tj-kpi-card">
+        <div class="tj-kpi-content">
+          <span class="tj-kpi-label">Month P&L</span>
+          <span class="tj-kpi-value" [class.positive]="monthPnL >= 0" [class.negative]="monthPnL < 0">{{ formatCurrency(monthPnL) }}</span>
+        </div>
+      </div>
+      <div class="tj-kpi-card">
+        <div class="tj-kpi-content">
+          <span class="tj-kpi-label">Month Trades</span>
+          <span class="tj-kpi-value">{{ monthTrades }}</span>
+        </div>
+      </div>
+      <div class="tj-kpi-card">
+        <div class="tj-kpi-content">
+          <span class="tj-kpi-label">Trading Days</span>
+          <span class="tj-kpi-value">{{ tradingDaysCount }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tj-card tj-calendar-card">
+      <div class="tj-card-body tj-calendar-body">
+        <div class="tj-calendar-grid">
+          @for (wd of weekDays; track wd) {
+            <div class="tj-calendar-header">{{ wd }}</div>
+          }
+          @for (day of calendarDays; track day.date) {
+            <div class="tj-calendar-day" [class.has-trades]="day.tradeCount > 0" [class.other-month]="!day.isCurrentMonth">
+              <div class="day-num">{{ day.dayNum }}</div>
+              @if (day.tradeCount > 0) {
+                <div class="day-pnl" [class.positive]="day.pnl >= 0" [class.negative]="day.pnl < 0">{{ formatCurrency(day.pnl) }}</div>
+                <div style="font-size: 9px; color: var(--tj-text-muted)">{{ day.tradeCount }} trade(s)</div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

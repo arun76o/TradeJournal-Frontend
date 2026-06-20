@@ -1,0 +1,69 @@
+@use './styles/variables' as *;
+@use './styles/themes';
+@use './styles/animations';
+@use './styles/layout';
+@use './styles/components';
+@use './styles/charts';
+@use './styles/forms';
+
+// ─── Base Reset ──────────────────────────────────────────────────
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+body {
+  font-family: $font-family-base;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--tj-text-primary);
+  background: var(--tj-bg-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// ─── Material Theme Overrides ────────────────────────────────────
+
+.mat-mdc-card {
+  background: var(--tj-bg-secondary) !important;
+  color: var(--tj-text-primary) !important;
+}
+
+.mat-toolbar {
+  background: var(--tj-bg-topbar) !important;
+  color: var(--tj-text-primary) !important;
+}
+
+// ─── Print Styles (PDF Export) ───────────────────────────────────
+
+@media print {
+  .tj-sidebar,
+  .tj-topbar,
+  .tj-table-toolbar,
+  .tj-actions-cell,
+  .tj-export-btn,
+  .tj-nav-item {
+    display: none !important;
+  }
+
+  .tj-main-wrapper {
+    margin-left: 0 !important;
+  }
+
+  .tj-page-content {
+    padding: 0;
+  }
+
+  .tj-card, .tj-chart-card {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+}

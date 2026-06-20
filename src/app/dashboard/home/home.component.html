@@ -1,0 +1,154 @@
+<div class="tj-page">
+  <app-page-header
+    title="Dashboard"
+    subtitle="Real-time overview of your trading performance"
+  ></app-page-header>
+
+  @if (isLoading) {
+    <div class="tj-loading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading dashboard...</p>
+    </div>
+  } @else {
+    @if (stats) {
+      <div class="tj-kpi-grid">
+        <app-kpi-card label="Total Trades" [value]="stats.totalTrades" icon="show_chart" iconColor="primary" delay="0.05s" />
+        <app-kpi-card label="Winning Trades" [value]="stats.winningTrades" icon="thumb_up" iconColor="success" delay="0.1s" />
+        <app-kpi-card label="Losing Trades" [value]="stats.losingTrades" icon="thumb_down" iconColor="danger" delay="0.15s" />
+        <app-kpi-card label="Win Rate" [value]="stats.winRate + '%'" icon="percent" iconColor="info" delay="0.2s" />
+        <app-kpi-card label="Net Profit" [value]="formatCurrency(stats.netProfit)" icon="trending_up" iconColor="success" valueClass="positive" delay="0.25s" />
+        <app-kpi-card label="Net Loss" [value]="formatCurrency(stats.netLoss)" icon="trending_down" iconColor="danger" valueClass="negative" delay="0.3s" />
+        <app-kpi-card label="Profit Factor" [value]="profitFactorDisplay" icon="functions" iconColor="warning" delay="0.35s" />
+        <app-kpi-card label="Avg R:R" [value]="stats.averageRR.toFixed(2)" icon="swap_vert" iconColor="neutral" delay="0.4s" />
+        <app-kpi-card label="Best Trade" [value]="formatCurrency(stats.bestTrade)" icon="emoji_events" iconColor="success" valueClass="positive" delay="0.45s" />
+        <app-kpi-card label="Worst Trade" [value]="formatCurrency(stats.worstTrade)" icon="warning" iconColor="danger" valueClass="negative" delay="0.5s" />
+        <app-kpi-card label="Current Month P&L" [value]="formatCurrency(stats.currentMonthPnL)" icon="calendar_today" iconColor="primary" [valueClass]="stats.currentMonthPnL >= 0 ? 'positive' : 'negative'" delay="0.55s" />
+      </div>
+    }
+
+    <div class="tj-charts-row">
+      <div class="tj-chart-card">
+        <div class="tj-chart-header">
+          <h3><mat-icon>show_chart</mat-icon> Equity Curve</h3>
+          <p>Cumulative profit over time</p>
+        </div>
+        <div class="tj-chart-body">
+          <canvas baseChart [data]="equityChartData" [options]="equityOptions" type="line"></canvas>
+        </div>
+      </div>
+
+      <div class="tj-chart-card">
+        <div class="tj-chart-header">
+          <h3><mat-icon>bar_chart</mat-icon> Monthly Profit / Loss</h3>
+          <p>Net P&L by month</p>
+        </div>
+        <div class="tj-chart-body">
+          <canvas baseChart [data]="monthlyChartData" [options]="monthlyOptions" type="bar"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="tj-charts-row">
+      <div class="tj-chart-card">
+        <div class="tj-chart-header">
+          <h3><mat-icon>donut_large</mat-icon> Win / Loss Distribution</h3>
+          <p>Trade outcome breakdown</p>
+        </div>
+        <div class="tj-chart-body compact">
+          <canvas baseChart [data]="doughnutChartData" [options]="doughnutOptions" type="doughnut"></canvas>
+        </div>
+      </div>
+
+      <div class="tj-chart-card">
+        <div class="tj-chart-header">
+          <h3><mat-icon>grid_on</mat-icon> Performance Heatmap</h3>
+          <p>P&L by day of week</p>
+        </div>
+        <div class="tj-chart-body compact">
+          <div class="tj-heatmap">
+            @for (cell of heatmapData; track cell.day) {
+              <div class="tj-heatmap-cell" [ngClass]="getHeatmapClass(cell.pnl, cell.trades)">
+                <span class="day-label">{{ cell.day }}</span>
+                <span>{{ cell.trades }} trades</span>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="tj-chart-card">
+        <div class="tj-chart-header">
+          <h3><mat-icon>timeline</mat-icon> Daily P&L</h3>
+          <p>Day-by-day performance</p>
+        </div>
+        <div class="tj-chart-body compact">
+          <canvas baseChart [data]="dailyChartData" [options]="dailyOptions" type="bar"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="tj-card">
+      <div class="tj-card-header">
+        <h3><mat-icon>history</mat-icon> Recent Trades</h3>
+        <button mat-stroked-button class="tj-export-btn" (click)="viewAllTrades()">
+          View All <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
+      <div class="tj-table-container">
+        <table class="tj-table">
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Side</th>
+              <th>Entry</th>
+              <th>Exit</th>
+              <th>Qty</th>
+              <th>P&L</th>
+              <th>Strategy</th>
+              <th>Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (trade of recentTrades; track trade.id) {
+              <tr>
+                <td class="tj-symbol-cell">
+                  <mat-icon>candlestick_chart</mat-icon>
+                  <strong>{{ trade.symbol }}</strong>
+                </td>
+                <td>
+                  <span class="tj-side-badge" [class.buy]="trade.side === 'BUY'" [class.sell]="trade.side === 'SELL'">{{ trade.side }}</span>
+                </td>
+                <td class="tj-price-cell">{{ trade.entryPrice | number:'1.2-5' }}</td>
+                <td class="tj-price-cell">{{ trade.exitPrice | number:'1.2-5' }}</td>
+                <td>{{ trade.quantity }}</td>
+                <td>
+                  <span class="tj-pnl-badge" [class.positive]="trade.netProfitINR >= 0" [class.negative]="trade.netProfitINR < 0">
+                    {{ formatCurrency(trade.netProfitINR) }}
+                  </span>
+                </td>
+                <td>{{ trade.strategy }}</td>
+                <td class="tj-date-cell">
+                  <mat-icon>event</mat-icon>
+                  {{ trade.tradeDate | date:'dd MMM yyyy' }}
+                </td>
+                <td>
+                  <span class="tj-status-badge" [class.win]="getStatus(trade) === 'WIN'" [class.loss]="getStatus(trade) === 'LOSS'" [class.breakeven]="getStatus(trade) === 'BREAKEVEN'">
+                    {{ getStatus(trade) }}
+                  </span>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="9" class="tj-no-data">
+                  <mat-icon>receipt_long</mat-icon>
+                  <p>No trades yet. Add your first trade to see analytics.</p>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

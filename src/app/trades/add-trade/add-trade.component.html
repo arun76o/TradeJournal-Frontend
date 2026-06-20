@@ -1,0 +1,336 @@
+<div class="tj-page tj-form-page">
+  <app-page-header
+    title="Add Trade"
+    subtitle="Record a new trade with auto-calculated profit/loss"
+  ></app-page-header>
+
+  <div class="tj-form-card">
+    <div class="tj-form-body">
+      <form [formGroup]="tradeForm" (ngSubmit)="saveTrade()">
+        <div class="tj-form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Symbol</mat-label>
+            <input
+              matInput
+              formControlName="symbol"
+              placeholder="e.g., EURUSD, RELIANCE"
+              autocomplete="off"
+            />
+            <mat-icon matPrefix>candlestick_chart</mat-icon>
+            @if (
+              tradeForm.get("symbol")?.hasError("required") &&
+              tradeForm.get("symbol")?.touched
+            ) {
+              <mat-error>Symbol is required</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Side</mat-label>
+            <mat-select formControlName="side">
+              @for (side of sideOptions; track side) {
+                <mat-option [value]="side">{{ side }}</mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>swap_horiz</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="tj-form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Entry Price</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="entryPrice"
+              step="any"
+            />
+            <mat-icon matPrefix>login</mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Exit Price</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="exitPrice"
+              step="any"
+            />
+            <mat-icon matPrefix>logout</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="tj-form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Stop Loss</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="stopLoss"
+              step="any"
+            />
+            <mat-icon matPrefix>shield</mat-icon>
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Take Profit</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="takeProfit"
+              step="any"
+            />
+            <mat-icon matPrefix>flag</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Gross Profit USD</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="grossProfitUSD"
+              (input)="calculateInrFromUsd()"
+            />
+            <mat-icon matPrefix>attach_money</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Gross Profit INR</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="grossProfitINR"
+              (input)="calculateUsdFromInr()"
+            />
+            <span matPrefix>₹&nbsp;</span>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Fees</mat-label>
+            <input matInput type="number" formControlName="fees" />
+            <span matPrefix>₹&nbsp;</span>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Net Profit INR</mat-label>
+            <input matInput formControlName="netProfitINR" readonly />
+            <span matPrefix>₹&nbsp;</span>
+          </mat-form-field>
+        </div>
+
+        <div class="tj-form-row single">
+          <mat-form-field appearance="outline">
+            <mat-label>Quantity (Lot Size)</mat-label>
+            <input
+              matInput
+              type="number"
+              formControlName="quantity"
+              step="0.01"
+            />
+            <mat-icon matPrefix>layers</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div
+          class="tj-pl-preview"
+          [class.positive-bg]="tradeForm.get('netProfitINR')?.value >= 0"
+          [class.negative-bg]="tradeForm.get('netProfitINR')?.value < 0"
+        >
+          <mat-icon>calculate</mat-icon>
+          <div>
+            <div class="pl-label">Estimated Profit / Loss</div>
+            <div
+              class="pl-value"
+              [class.positive]="tradeForm.get('netProfitINR')?.value >= 0"
+              [class.negative]="tradeForm.get('netProfitINR')?.value < 0"
+            >
+              <!-- {{
+                  tradeForm.get("profitINR")?.value
+                    | currency: "INR" : "symbol" : "1.2-2"
+                }} -->
+              <div class="pl-value">
+                USD:
+                {{
+                  tradeForm.get("grossProfitUSD")?.value
+                    | currency: "USD" : "symbol" : "1.2-2"
+                }}
+              </div>
+
+              <div class="pl-value">
+                INR:
+                {{
+                  tradeForm.get("netProfitINR")?.value
+                    | currency: "INR" : "symbol" : "1.2-2"
+                }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tj-form-row single">
+          <mat-form-field appearance="outline">
+            <mat-label>Strategy</mat-label>
+
+            <mat-select formControlName="strategy">
+              <mat-option value="Breakout">Breakout</mat-option>
+              <mat-option value="Breakout">Liquidity</mat-option>
+              <mat-option value="Reversal">Reversal</mat-option>
+              <mat-option value="Trend Following">Trend Following</mat-option>
+              <mat-option value="Scalping">Scalping</mat-option>
+              <mat-option value="Swing">Swing</mat-option>
+              <mat-option value="Gap & Go">Gap & Go</mat-option>
+              <mat-option value="VWAP Bounce">VWAP Bounce</mat-option>
+              <mat-option value="ORB">ORB</mat-option>
+            </mat-select>
+
+            <mat-icon matPrefix>psychology</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="tj-form-row single">
+          <mat-form-field appearance="outline">
+            <mat-label>Trade Date</mat-label>
+            <input
+              matInput
+              [matDatepicker]="datepicker"
+              formControlName="tradeDate"
+            />
+            <mat-datepicker-toggle
+              matSuffix
+              [for]="datepicker"
+            ></mat-datepicker-toggle>
+            <mat-datepicker #datepicker></mat-datepicker>
+            <mat-icon matPrefix>event</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="tj-form-row single">
+          <mat-form-field appearance="outline">
+            <mat-label>Notes</mat-label>
+            <textarea
+              matInput
+              formControlName="notes"
+              rows="3"
+              placeholder="Trade rationale, lessons learned..."
+            ></textarea>
+            <mat-icon matPrefix>notes</mat-icon>
+          </mat-form-field>
+        </div>
+        <div class="tj-form-row single">
+          <label>Trade Screenshot</label>
+
+          <div
+            class="upload-zone"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+            [class.drag-active]="isDragging"
+          >
+            <mat-icon>cloud_upload</mat-icon>
+
+            <h3>Drag & Drop Images Here</h3>
+
+            <p>or</p>
+
+            <button
+              mat-raised-button
+              type="button"
+              color="primary"
+              (click)="fileInput.click()"
+            >
+              Browse Files
+            </button>
+
+            <input
+              #fileInput
+              hidden
+              type="file"
+              accept="image/*"
+              multiple
+              (change)="onFileSelected($event)"
+            />
+          </div>
+        </div>
+
+        <div class="preview-gallery">
+          <!-- Existing Images -->
+          @for (image of existingImageUrls; track image; let i = $index) {
+            <div class="image-container">
+              <img [src]="image" class="preview-image" />
+
+              <button
+                type="button"
+                class="remove-image-btn"
+                (click)="removeExistingImage(i)"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+
+          <!-- New Images -->
+          @for (image of newImagePreviews; track image; let i = $index) {
+            <div class="image-container">
+              <img [src]="image" class="preview-image" />
+
+              <button
+                type="button"
+                class="remove-image-btn"
+                (click)="removeNewImage(i)"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- <div class="tj-form-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="tradeForm.invalid || isLoading"
+          >
+            @if (isLoading) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else {
+              <mat-icon>save</mat-icon>
+            }
+            {{ isLoading ? "Saving..." : "Add Trade" }}
+          </button>
+          <button mat-stroked-button type="button" (click)="resetForm()">
+            <mat-icon>refresh</mat-icon> Reset
+          </button>
+        </div> -->
+
+        <div class="tj-form-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="tradeForm.invalid || isLoading"
+          >
+            @if (isLoading) {
+              <mat-spinner diameter="20"></mat-spinner>
+            } @else if (isEditMode) {
+              <mat-icon>edit</mat-icon>
+            } @else {
+              <mat-icon>save</mat-icon>
+            }
+
+            {{
+              isLoading
+                ? isEditMode
+                  ? "Updating..."
+                  : "Saving..."
+                : isEditMode
+                  ? "Update Trade"
+                  : "Add Trade"
+            }}
+          </button>
+          <button mat-stroked-button type="button" (click)="resetForm()">
+            <mat-icon>refresh</mat-icon> Reset
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

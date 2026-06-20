@@ -1,0 +1,62 @@
+<div class="tj-page">
+  <app-page-header title="Settings" subtitle="Customize your trading journal experience"></app-page-header>
+
+  <div class="tj-grid-2">
+    <div class="tj-card">
+      <div class="tj-card-header"><h3><mat-icon>palette</mat-icon> Appearance</h3></div>
+      <div class="tj-card-body">
+        <div class="tj-settings-section">
+          <h3>Theme</h3>
+          <div class="tj-btn-group">
+            <button mat-stroked-button [class.mat-primary]="themeService.theme() === 'light'" (click)="setTheme('light')">
+              <mat-icon>light_mode</mat-icon> Light
+            </button>
+            <button mat-stroked-button [class.mat-primary]="themeService.theme() === 'dark'" (click)="setTheme('dark')">
+              <mat-icon>dark_mode</mat-icon> Dark
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tj-card">
+      <div class="tj-card-header"><h3><mat-icon>language</mat-icon> Regional</h3></div>
+      <div class="tj-card-body">
+        <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 16px">
+          <mat-label>Currency</mat-label>
+          <mat-select [value]="settings.currency" (selectionChange)="onCurrencyChange($event.value)">
+            @for (c of currencies; track c.code) {
+              <mat-option [value]="c.code">{{ c.label }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" style="width: 100%">
+          <mat-label>Time Zone</mat-label>
+          <mat-select [value]="settings.timezone" (selectionChange)="onTimezoneChange($event.value)">
+            @for (tz of timezones; track tz) {
+              <mat-option [value]="tz">{{ tz }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="tj-card">
+      <div class="tj-card-header"><h3><mat-icon>notifications</mat-icon> Notifications</h3></div>
+      <div class="tj-card-body">
+        <div class="tj-settings-row">
+          <div><div class="setting-label">Email Notifications</div><div class="setting-desc">Receive updates via email</div></div>
+          <mat-slide-toggle [checked]="settings.emailNotifications" (change)="onNotificationChange('emailNotifications', $event.checked)"></mat-slide-toggle>
+        </div>
+        <div class="tj-settings-row">
+          <div><div class="setting-label">Trade Alerts</div><div class="setting-desc">Get notified on trade milestones</div></div>
+          <mat-slide-toggle [checked]="settings.tradeAlerts" (change)="onNotificationChange('tradeAlerts', $event.checked)"></mat-slide-toggle>
+        </div>
+        <div class="tj-settings-row">
+          <div><div class="setting-label">Weekly Report</div><div class="setting-desc">Receive weekly performance summary</div></div>
+          <mat-slide-toggle [checked]="settings.weeklyReport" (change)="onNotificationChange('weeklyReport', $event.checked)"></mat-slide-toggle>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,131 @@
+@use '../../../styles/variables' as *;
+
+.preview-gallery {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+
+.image-container {
+  position: relative;
+  flex: 0 0 auto;
+}
+
+.preview-image {
+  width: 120px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--tj-border, #ddd);
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: #ef4444;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 0;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.upload-zone {
+  width: 100%;
+  border: 2px dashed #cbd5e1;
+  border-radius: 16px;
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.3s;
+  background: var(--tj-bg-tertiary, #fafafa);
+  box-sizing: border-box;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #64748b;
+  }
+
+  h3 {
+    margin: 12px 0 4px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--tj-text-primary, #334155);
+  }
+
+  p {
+    margin: 0 0 12px;
+    color: var(--tj-text-muted, #64748b);
+    font-size: 14px;
+  }
+}
+
+.drag-active {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  transform: scale(1.01);
+}
+
+@media (max-width: $breakpoint-tablet-max) {
+  .upload-zone {
+    padding: 28px 16px;
+
+    mat-icon {
+      font-size: 40px;
+      width: 40px;
+      height: 40px;
+    }
+
+    h3 {
+      font-size: 15px;
+    }
+  }
+
+  .preview-image {
+    width: 100px;
+    height: 75px;
+  }
+}
+
+@media (max-width: $breakpoint-mobile-max) {
+  .upload-zone {
+    padding: 24px 12px;
+
+    mat-icon {
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
+    }
+
+    h3 {
+      font-size: 14px;
+    }
+  }
+
+  .preview-gallery {
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .preview-image {
+    width: calc(50% - 8px);
+    max-width: 140px;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+}

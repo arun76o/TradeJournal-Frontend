@@ -1,0 +1,61 @@
+<div class="tj-page">
+  <app-page-header title="Reports" subtitle="Generate and export trading performance reports">
+    <div actions class="tj-btn-group">
+      <button mat-stroked-button class="tj-export-btn" (click)="exportCsv()">
+        <mat-icon>table_chart</mat-icon> Export Excel
+      </button>
+      <button mat-stroked-button class="tj-export-btn" (click)="exportPdf()">
+        <mat-icon>picture_as_pdf</mat-icon> Export PDF
+      </button>
+    </div>
+  </app-page-header>
+
+  @if (isLoading) {
+    <div class="tj-loading"><mat-spinner diameter="40"></mat-spinner></div>
+  } @else {
+    <div class="tj-card">
+      <div class="tj-card-header">
+        <h3><mat-icon>summarize</mat-icon> Performance Summary Report</h3>
+        <span style="font-size: 12px; color: var(--tj-text-muted)">Generated {{ generatedAt | date:'medium' }}</span>
+      </div>
+      <div class="tj-card-body">
+        <div class="tj-stat-row">
+          <div class="tj-stat-item"><div class="label">Total Trades</div><div class="value">{{ stats.totalTrades }}</div></div>
+          <div class="tj-stat-item"><div class="label">Win Rate</div><div class="value">{{ stats.winRate }}%</div></div>
+          <div class="tj-stat-item"><div class="label">Total P&L</div><div class="value" [class.positive]="stats.totalPnL >= 0" [class.negative]="stats.totalPnL < 0">{{ formatCurrency(stats.totalPnL) }}</div></div>
+          <div class="tj-stat-item"><div class="label">Profit Factor</div><div class="value">{{ profitFactorDisplay }}</div></div>
+          <div class="tj-stat-item"><div class="label">Best Trade</div><div class="value positive">{{ formatCurrency(stats.bestTrade) }}</div></div>
+          <div class="tj-stat-item"><div class="label">Worst Trade</div><div class="value negative">{{ formatCurrency(stats.worstTrade) }}</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tj-card" style="margin-top: 24px">
+      <div class="tj-card-header"><h3><mat-icon>list_alt</mat-icon> Trade Log</h3></div>
+      <div class="tj-table-container">
+        <table class="tj-table">
+          <thead>
+            <tr>
+              <th>Symbol</th><th>Side</th><th>Entry</th><th>Exit</th><th>Qty</th><th>P&L</th><th>Strategy</th><th>Date</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (trade of trades; track trade.id) {
+              <tr>
+                <td><strong>{{ trade.symbol }}</strong></td>
+                <td><span class="tj-side-badge" [class.buy]="trade.side === 'BUY'" [class.sell]="trade.side === 'SELL'">{{ trade.side }}</span></td>
+                <td class="tj-price-cell">{{ trade.entryPrice | number:'1.2-5' }}</td>
+                <td class="tj-price-cell">{{ trade.exitPrice | number:'1.2-5' }}</td>
+                <td>{{ trade.quantity }}</td>
+                <td><span class="tj-pnl-badge" [class.positive]="trade.netProfitINR >= 0" [class.negative]="trade.netProfitINR < 0">{{ formatCurrency(trade.netProfitINR) }}</span></td>
+                <td>{{ trade.strategy }}</td>
+                <td>{{ trade.tradeDate | date:'dd MMM yyyy' }}</td>
+                <td><span class="tj-status-badge" [class.win]="trade.netProfitINR > 0" [class.loss]="trade.netProfitINR < 0" [class.breakeven]="trade.netProfitINR === 0">{{ trade.netProfitINR > 0 ? 'WIN' : trade.netProfitINR < 0 ? 'LOSS' : 'BREAKEVEN' }}</span></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,161 @@
+@use 'variables' as *;
+
+.tj-form-page {
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.tj-form-card {
+  background: var(--tj-bg-secondary);
+  border: 1px solid var(--tj-border);
+  border-radius: $border-radius-lg;
+  box-shadow: var(--tj-shadow-card);
+  overflow: hidden;
+}
+
+.tj-form-header {
+  padding: $spacing-lg;
+  border-bottom: 1px solid var(--tj-border-light);
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+
+  .header-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: $border-radius-md;
+    background: var(--tj-kpi-icon-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    mat-icon {
+      color: white;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--tj-text-primary);
+  }
+
+  p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--tj-text-muted);
+  }
+}
+
+.tj-form-body {
+  padding: $spacing-lg;
+}
+
+.tj-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+  margin-bottom: $spacing-sm;
+
+  &.single {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tj-form-actions {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-lg;
+  padding-top: $spacing-lg;
+  border-top: 1px solid var(--tj-border-light);
+  flex-wrap: wrap;
+}
+
+.tj-pl-preview {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md $spacing-lg;
+  border-radius: $border-radius-md;
+  margin-bottom: $spacing-md;
+  border: 1px solid var(--tj-border);
+  flex-wrap: wrap;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: var(--tj-accent);
+    flex-shrink: 0;
+  }
+
+  .pl-label {
+    font-size: 12px;
+    color: var(--tj-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .pl-value {
+    font-size: 24px;
+    font-weight: 700;
+    font-family: $font-family-mono;
+
+    &.positive { color: var(--tj-profit); }
+    &.negative { color: var(--tj-loss); }
+  }
+
+  &.positive-bg {
+    background: var(--tj-profit-bg);
+    border-color: var(--tj-profit);
+  }
+
+  &.negative-bg {
+    background: var(--tj-loss-bg);
+    border-color: var(--tj-loss);
+  }
+}
+
+@media (max-width: $breakpoint-tablet-max) {
+  .tj-form-body {
+    padding: $spacing-md;
+  }
+
+  .tj-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .tj-form-actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+
+  .tj-pl-preview {
+    padding: $spacing-md;
+
+    .pl-value {
+      font-size: 20px;
+    }
+  }
+}
+
+@media (max-width: $breakpoint-mobile-max) {
+  .tj-form-header {
+    padding: $spacing-md;
+    flex-wrap: wrap;
+  }
+}
+
+// Material overrides for theme consistency
+.mat-mdc-form-field {
+  width: 100%;
+}

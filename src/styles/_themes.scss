@@ -1,0 +1,90 @@
+// ─── Light & Dark Theme CSS Custom Properties ──────────────────
+
+:root,
+[data-theme='light'] {
+  --tj-bg-primary: #f0f2f5;
+  --tj-bg-secondary: #ffffff;
+  --tj-bg-tertiary: #f8fafc;
+  --tj-bg-elevated: #ffffff;
+  --tj-bg-sidebar: #0f172a;
+  --tj-bg-sidebar-hover: rgba(255, 255, 255, 0.08);
+  --tj-bg-sidebar-active: rgba(59, 130, 246, 0.2);
+  --tj-bg-topbar: #ffffff;
+  --tj-bg-input: #f1f5f9;
+
+  --tj-text-primary: #0f172a;
+  --tj-text-secondary: #475569;
+  --tj-text-muted: #94a3b8;
+  --tj-text-inverse: #ffffff;
+  --tj-text-sidebar: #cbd5e1;
+  --tj-text-sidebar-active: #ffffff;
+
+  --tj-border: #e2e8f0;
+  --tj-border-light: #f1f5f9;
+  --tj-divider: #e2e8f0;
+
+  --tj-accent: #3b82f6;
+  --tj-accent-hover: #2563eb;
+  --tj-accent-subtle: rgba(59, 130, 246, 0.1);
+
+  --tj-profit: #10b981;
+  --tj-profit-bg: rgba(16, 185, 129, 0.12);
+  --tj-loss: #ef4444;
+  --tj-loss-bg: rgba(239, 68, 68, 0.12);
+
+  --tj-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06);
+  --tj-shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+  --tj-shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.1);
+  --tj-shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+
+  --tj-chart-grid: rgba(148, 163, 184, 0.2);
+  --tj-chart-text: #64748b;
+
+  --tj-kpi-icon-bg: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  --tj-scrollbar-thumb: #cbd5e1;
+  --tj-scrollbar-track: #f1f5f9;
+}
+
+[data-theme='dark'] {
+  --tj-bg-primary: #0b1120;
+  --tj-bg-secondary: #111827;
+  --tj-bg-tertiary: #1e293b;
+  --tj-bg-elevated: #1e293b;
+  --tj-bg-sidebar: #030712;
+  --tj-bg-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --tj-bg-sidebar-active: rgba(59, 130, 246, 0.25);
+  --tj-bg-topbar: #111827;
+  --tj-bg-input: #1e293b;
+
+  --tj-text-primary: #f1f5f9;
+  --tj-text-secondary: #94a3b8;
+  --tj-text-muted: #64748b;
+  --tj-text-inverse: #0f172a;
+  --tj-text-sidebar: #94a3b8;
+  --tj-text-sidebar-active: #ffffff;
+
+  --tj-border: #334155;
+  --tj-border-light: #1e293b;
+  --tj-divider: #334155;
+
+  --tj-accent: #60a5fa;
+  --tj-accent-hover: #3b82f6;
+  --tj-accent-subtle: rgba(96, 165, 250, 0.15);
+
+  --tj-profit: #34d399;
+  --tj-profit-bg: rgba(52, 211, 153, 0.15);
+  --tj-loss: #f87171;
+  --tj-loss-bg: rgba(248, 113, 113, 0.15);
+
+  --tj-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --tj-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --tj-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --tj-shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+
+  --tj-chart-grid: rgba(100, 116, 139, 0.2);
+  --tj-chart-text: #94a3b8;
+
+  --tj-kpi-icon-bg: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  --tj-scrollbar-thumb: #475569;
+  --tj-scrollbar-track: #1e293b;
+}

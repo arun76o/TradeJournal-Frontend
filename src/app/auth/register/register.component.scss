@@ -1,0 +1,269 @@
+// register.component.scss
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.register-card {
+  max-width: 500px;
+  width: 100%;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+mat-card-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 24px 20px;
+}
+
+.header-icon {
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.header-icon mat-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+  color: white;
+}
+
+mat-card-title {
+  font-size: 28px !important;
+  font-weight: 600 !important;
+  margin-bottom: 8px !important;
+  color: #333;
+}
+
+mat-card-subtitle {
+  font-size: 14px;
+  color: #666;
+}
+
+mat-card-content {
+  padding: 0 24px 24px;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+::ng-deep .mat-mdc-form-field {
+  margin-bottom: 16px;
+}
+
+::ng-deep .mat-mdc-form-field-flex {
+  background-color: white;
+}
+
+// Password Strength Indicator
+.password-strength {
+  margin: -8px 0 16px 0;
+  padding: 8px;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.strength-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.strength-bar {
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.strength-level {
+  height: 100%;
+  width: 0;
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.strength-level.weak {
+  width: 33%;
+  background-color: #f44336;
+}
+
+.strength-level.medium {
+  width: 66%;
+  background-color: #ff9800;
+}
+
+.strength-level.strong {
+  width: 100%;
+  background-color: #4caf50;
+}
+
+.strength-text {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.strength-text.weak {
+  color: #f44336;
+}
+
+.strength-text.medium {
+  color: #ff9800;
+}
+
+.strength-text.strong {
+  color: #4caf50;
+}
+
+// Register Button
+.register-button {
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  margin: 16px 0 8px;
+  border-radius: 25px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.register-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.register-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.register-button[disabled] {
+  opacity: 0.6;
+}
+
+// Login Link
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.login-link a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s ease;
+}
+
+.login-link a:hover {
+  color: #764ba2;
+}
+
+::ng-deep .login-link .mat-mdc-button {
+  padding: 0;
+}
+
+// Snackbar Styles
+::ng-deep .success-snackbar {
+  background: #4caf50;
+  color: white;
+  
+  .mat-simple-snackbar-action {
+    color: white;
+  }
+}
+
+::ng-deep .error-snackbar {
+  background: #f44336;
+  color: white;
+  
+  .mat-simple-snackbar-action {
+    color: white;
+  }
+}
+
+// Responsive Design
+@media (max-width: 767px) {
+  .register-container {
+    padding: 16px;
+    align-items: flex-start;
+    padding-top: 32px;
+  }
+
+  .register-card {
+    margin: 0;
+    border-radius: 16px;
+  }
+
+  mat-card-header {
+    padding: 24px 20px 16px;
+  }
+
+  mat-card-content {
+    padding: 0 20px 20px;
+  }
+  
+  mat-card-title {
+    font-size: 22px !important;
+  }
+  
+  .header-icon {
+    width: 55px;
+    height: 55px;
+  }
+  
+  .header-icon mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+// Error Animation
+::ng-deep .mat-mdc-form-field.mat-form-field-invalid .mat-mdc-form-field-flex {
+  animation: shake 0.5s;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
