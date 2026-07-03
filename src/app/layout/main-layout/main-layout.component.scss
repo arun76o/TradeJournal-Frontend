@@ -1,1 +1,18 @@
 // Layout styles are in global SCSS (_layout.scss)
+.top-profile-img,
+.top-profile-placeholder {
+
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+
+  object-fit: cover;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+}

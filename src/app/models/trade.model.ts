@@ -25,6 +25,7 @@ export interface UserProfile {
 
   displayName: string;
   email: string;
+  profileImageUrl?: string;
 
   tradingGoal: string;
   preferredMarkets: string;

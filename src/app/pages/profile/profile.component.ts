@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,6 +15,7 @@ import {
   reauthenticateWithCredential,
   updatePassword,
 } from '@angular/fire/auth';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-profile',
@@ -34,7 +35,15 @@ export class ProfileComponent implements OnInit {
   private auth = inject(Auth);
   private profileService = inject(ProfileService);
   private alertService = inject(AlertService);
+  private http = inject(HttpClient);
   //  private profileService = inject(ProfileService);
+
+  @ViewChild('fileInput')
+fileInput!: ElementRef<HTMLInputElement>;
+
+openFilePicker() {
+  this.fileInput.nativeElement.click();
+}
 
   userName = '';
   userEmail = '';
@@ -43,6 +52,9 @@ export class ProfileComponent implements OnInit {
   maxDailyLoss = 0;
   maxRiskPerTrade = 0;
   preferredMarkets = '';
+  profileImageUrl: string = '';
+
+  selectedFile!: File;
 
   currentPassword = '';
   newPassword = '';
@@ -120,6 +132,65 @@ export class ProfileComponent implements OnInit {
     }
   }
 
+  onProfileImageSelected(event: any) {
+    if (!event.target.files.length) {
+      return;
+    }
+
+    this.selectedFile = event.target.files[0];
+
+    this.uploadProfileImage();
+  }
+
+  // uploadProfileImage(): Promise<string> {
+  //   return new Promise((resolve, reject) => {
+  //     if (!this.selectedFile) {
+  //       resolve(this.profileImageUrl);
+  //       return;
+  //     }
+
+  //     const formData = new FormData();
+
+  //     formData.append('file', this.selectedFile);
+  //     formData.append('upload_preset', 'trade-journal');
+
+  //     this.http
+  //       .post<any>(
+  //         'https://api.cloudinary.com/v1_1/dytjlbf1c/image/upload',
+  //         formData,
+  //       )
+  //       .subscribe({
+  //         next: (res) => resolve(res.secure_url),
+  //         error: (err) => reject(err),
+  //       });
+  //   });
+  // }
+
+  uploadProfileImage() {
+    const formData = new FormData();
+
+    formData.append('file', this.selectedFile);
+
+    formData.append('upload_preset', 'trade-journal');
+
+    this.http
+      .post<any>(
+        'https://api.cloudinary.com/v1_1/dytjlbf1c/image/upload',
+        formData,
+      )
+      .subscribe({
+        next: (res) => {
+          this.profileImageUrl = res.secure_url;
+
+          this.saveProfile();
+        },
+
+        error: (err) => {
+          console.error(err);
+        },
+      });
+  }
+
   loadProfile(userId: string): void {
     this.profileService.getProfile(userId).subscribe({
       next: (profile) => {
@@ -131,6 +202,7 @@ export class ProfileComponent implements OnInit {
 
         this.maxDailyLoss = profile.maxDailyLoss;
         this.maxRiskPerTrade = profile.maxRiskPerTrade;
+        this.profileImageUrl = profile.profileImageUrl ? profile.profileImageUrl : '';
       },
 
       error: (err) => {
@@ -154,6 +226,7 @@ export class ProfileComponent implements OnInit {
         preferredMarkets: this.preferredMarkets,
         maxDailyLoss: this.maxDailyLoss,
         maxRiskPerTrade: this.maxRiskPerTrade,
+        profileImageUrl: this.profileImageUrl,
       };
 
       this.profileService.saveProfile(profile).subscribe({

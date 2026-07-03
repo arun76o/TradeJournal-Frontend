@@ -1,3 +1,4 @@
+
 <div class="tj-app-shell">
   @if (isMobileSidebarOpen) {
     <div
@@ -122,15 +123,34 @@
           mat-icon-button
           class="tj-theme-toggle"
           (click)="toggleTheme()"
-          [matTooltip]="themeService.theme() === 'light' ? 'Dark mode' : 'Light mode'"
+          [matTooltip]="
+            themeService.theme() === 'light' ? 'Dark mode' : 'Light mode'
+          "
         >
           <mat-icon>{{
-            themeService.theme() === 'light' ? 'dark_mode' : 'light_mode'
+            themeService.theme() === "light" ? "dark_mode" : "light_mode"
           }}</mat-icon>
         </button>
 
-        <button mat-icon-button  class="tj-avatar-btn" [matMenuTriggerFor]="userMenu" matTooltip="Account">
-          <div class="tj-user-avatar">{{ userInitials }}</div>
+        <button
+          mat-icon-button
+          class="tj-avatar-btn"
+          [matMenuTriggerFor]="userMenu"
+          matTooltip="Account"
+        >
+          <!-- <div class="tj-user-avatar">{{ userInitials }}</div> -->
+
+          <div class="top-profile">
+            <img
+              *ngIf="profileImageUrl"
+              [src]="profileImageUrl"
+              class="top-profile-img"
+            />
+
+            <div *ngIf="!profileImageUrl" class="top-profile-placeholder">
+              {{ userInitials }}
+            </div>
+          </div>
         </button>
 
         <mat-menu #userMenu="matMenu">

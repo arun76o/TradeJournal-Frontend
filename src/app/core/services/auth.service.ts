@@ -27,12 +27,25 @@ export class AuthService {
     );
   }
 
+  // googleLogin() {
+  //   return signInWithPopup(
+  //     this.auth,
+  //     new GoogleAuthProvider()
+  //   );
+  // }
+
   googleLogin() {
-    return signInWithPopup(
-      this.auth,
-      new GoogleAuthProvider()
-    );
-  }
+  const provider = new GoogleAuthProvider();
+
+  provider.addScope('email');
+  provider.addScope('profile');
+
+  provider.setCustomParameters({
+    prompt: 'select_account'
+  });
+
+  return signInWithPopup(this.auth, provider);
+}
 
   logout() {
     return signOut(this.auth);

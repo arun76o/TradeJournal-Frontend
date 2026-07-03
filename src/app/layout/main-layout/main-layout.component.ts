@@ -19,6 +19,7 @@ import { SettingsService } from '../../core/services/settings.service';
 import { TradeService } from '../../services/trade.service';
 import { computeDashboardStats } from '../../core/utils/trade-analytics.util';
 import { DashboardRefreshService } from '../../core/services/dashboard-refresh.service';
+import { ProfileService } from '../../services/profile.service';
 
 interface NavItem {
   label: string;
@@ -41,8 +42,9 @@ interface NavItem {
     MatTooltipModule,
     MatBadgeModule,
   ],
+  standalone: true,
   templateUrl: './main-layout.component.html',
-  styleUrl: './main-layout.component.scss',
+  styleUrls: ['./main-layout.component.scss'],
 })
 export class MainLayoutComponent implements OnInit {
   private router = inject(Router);
@@ -52,6 +54,7 @@ export class MainLayoutComponent implements OnInit {
   readonly themeService = inject(ThemeService);
   readonly settingsService = inject(SettingsService);
   private dashboardRefreshService = inject(DashboardRefreshService);
+  private profileService = inject(ProfileService);
 
   isSidebarOpen = true;
   isMobileSidebarOpen = false;
@@ -60,8 +63,9 @@ export class MainLayoutComponent implements OnInit {
   userName = 'Trader';
   userInitials = 'T';
   notificationCount = 3;
-
+  profileImageUrl = '';
   isMobile = false;
+  userEmail = '';
 
   navItems: NavItem[] = [
     {
@@ -121,14 +125,38 @@ export class MainLayoutComponent implements OnInit {
     },
   ];
 
+  constructor() {
+  console.error('Constructor');
+}
+
   ngOnInit(): void {
-      this.checkScreenSize();
+
+    this.checkScreenSize();
+
     authState(this.auth).subscribe((user) => {
-      if (user) {
-        const name = user.displayName || user.email?.split('@')[0] || 'Trader';
-        this.userName = name;
-        this.userInitials = name.slice(0, 2).toUpperCase();
+      if (!user) {
+        return;
       }
+      this.userName = user.displayName || user.email?.split('@')[0] || 'Trader';
+      this.userEmail = user.email || '';
+      this.userInitials = this.userName.slice(0, 2).toUpperCase();
+      // this.loadProfile(user.uid);
+    });
+
+    authState(this.auth).subscribe((user) => {
+      if (!user) {
+        return;
+      }
+      this.profileService.getProfile(user.uid).subscribe({
+        next: (profile) => {
+          this.userName = profile.displayName;
+          this.userEmail = profile.email;
+          this.profileImageUrl = profile.profileImageUrl || '';
+        },
+        error: (err) => {
+          console.error('Profile Error:', err);
+        },
+      });
     });
 
     this.dashboardRefreshService.refresh$.subscribe(() => {
@@ -155,23 +183,21 @@ export class MainLayoutComponent implements OnInit {
   }
 
   checkScreenSize(): void {
-  this.isMobile = window.innerWidth <= 991;
-}
-
-@HostListener('window:resize')
-onResize(): void {
-  this.checkScreenSize();
-}
-
-toggleMenu(): void {
-
-  if (this.isMobile) {
-    this.toggleMobileSidebar();
-  } else {
-    this.toggleSidebar();
+    this.isMobile = window.innerWidth <= 991;
   }
 
-}
+  @HostListener('window:resize')
+  onResize(): void {
+    this.checkScreenSize();
+  }
+
+  toggleMenu(): void {
+    if (this.isMobile) {
+      this.toggleMobileSidebar();
+    } else {
+      this.toggleSidebar();
+    }
+  }
 
   toggleSidebar(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
