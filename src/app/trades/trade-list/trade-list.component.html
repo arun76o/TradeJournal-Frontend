@@ -36,6 +36,15 @@
             }
           </mat-select>
         </mat-form-field>
+
+        <mat-form-field appearance="outline" class="tj-filter-field tj-filter-strategy">
+          <mat-label>Profit/Loss</mat-label>
+          <mat-select [(ngModel)]="filterProfitLoss" (selectionChange)="applyFilters()">
+            <mat-option value="">All</mat-option>
+            <mat-option value="PROFIT">WIN</mat-option>
+            <mat-option value="LOSS">Loss</mat-option>
+          </mat-select>
+        </mat-form-field>
       </div>
 
       @if (filteredTrades.length === 0) {

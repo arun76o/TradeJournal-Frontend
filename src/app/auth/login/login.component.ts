@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../core/services/auth.service';
+import { TwoFactorService } from '../../core/services/two-factor.service';
 import { Router } from '@angular/router';
 import { AlertService } from '../../core/services/alert.service';
 
@@ -30,6 +31,7 @@ import { AlertService } from '../../core/services/alert.service';
 })
 export class LoginComponent {
   private authService = inject(AuthService);
+  private twoFactorService = inject(TwoFactorService);
   private router = inject(Router);
   private alertService = inject(AlertService);
 
@@ -51,16 +53,37 @@ export class LoginComponent {
 
     try {
       const result = await this.authService.login(this.email, this.password);
-      this.alertService.success('Login Success!');
+      this.twoFactorService.clearSession();
+      this.twoFactorService.clearChallenge();
 
-      await this.router.navigate(['/dashboard']);
+      this.twoFactorService.startLoginTwoFactor().subscribe({
+        next: (res) => {
+          if (res.twoFactorRequired && res.challengeId) {
+            this.twoFactorService.storeChallenge(
+              res.challengeId,
+              res.expiresInSeconds || 300,
+              res.maskedEmail || '',
+              'login'
+            );
+            this.router.navigate(['/verify-otp']);
+          } else {
+            this.alertService.success('Login Success!');
+            this.router.navigate(['/dashboard']);
+          }
+          this.isLoading = false;
+        },
+        error: () => {
+          this.alertService.success('Login Success!');
+          this.router.navigate(['/dashboard']);
+          this.isLoading = false;
+        },
+      });
     } catch (error) {
       console.error(error);
       this.alertService.error(
         'Login Failed',
         'Invalid email or password. Please try again.',
       );
-    } finally {
       this.isLoading = false;
     }
   }
@@ -75,15 +98,38 @@ export class LoginComponent {
     try {
       const result = await this.authService.googleLogin();
       console.log(result.user);
-      this.alertService.success('Google Login Success!');
-      await this.router.navigate(['/dashboard']);
+
+      this.twoFactorService.clearSession();
+      this.twoFactorService.clearChallenge();
+
+      this.twoFactorService.startLoginTwoFactor().subscribe({
+        next: (res) => {
+          if (res.twoFactorRequired && res.challengeId) {
+            this.twoFactorService.storeChallenge(
+              res.challengeId,
+              res.expiresInSeconds || 300,
+              res.maskedEmail || '',
+              'login'
+            );
+            this.router.navigate(['/verify-otp']);
+          } else {
+            this.alertService.success('Google Login Success!');
+            this.router.navigate(['/dashboard']);
+          }
+          this.isLoading = false;
+        },
+        error: () => {
+          this.alertService.success('Google Login Success!');
+          this.router.navigate(['/dashboard']);
+          this.isLoading = false;
+        },
+      });
     } catch (error) {
       console.error(error);
        this.alertService.error(
         'Login Failed',
         'Google login failed. Please try again.',
       );
-    } finally {
       this.isLoading = false;
     }
   }

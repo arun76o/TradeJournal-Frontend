@@ -38,7 +38,7 @@
             <div class="tj-calendar-header">{{ wd }}</div>
           }
           @for (day of calendarDays; track day.date) {
-            <div class="tj-calendar-day" [class.has-trades]="day.tradeCount > 0" [class.other-month]="!day.isCurrentMonth">
+            <div class="tj-calendar-day" [class.has-trades]="day.tradeCount > 0" [class.other-month]="!day.isCurrentMonth" [class.clickable]="day.isCurrentMonth" (click)="openDaySummary(day)">
               <div class="day-num">{{ day.dayNum }}</div>
               @if (day.tradeCount > 0) {
                 <div class="day-pnl" [class.positive]="day.pnl >= 0" [class.negative]="day.pnl < 0">{{ formatCurrency(day.pnl) }}</div>
@@ -51,3 +51,10 @@
     </div>
   }
 </div>
+
+<app-day-summary-dialog
+  [summary]="selectedDaySummary"
+  [formattedDate]="selectedDayFormatted"
+  [formatCurrency]="formatCurrency.bind(this)"
+  (close)="closeDialog()"
+/>

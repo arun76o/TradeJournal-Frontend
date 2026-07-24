@@ -75,6 +75,7 @@ export class TradeListComponent implements OnInit {
   searchQuery = '';
   filterSide = '';
   filterStrategy = '';
+  filterProfitLoss = '';
   strategies: string[] = [];
 
   sortField: SortField = 'tradeDate';
@@ -147,6 +148,15 @@ export class TradeListComponent implements OnInit {
 
     if (this.filterStrategy) {
       result = result.filter((t) => t.strategy === this.filterStrategy);
+    }
+    if (this.filterProfitLoss) {
+      result = result.filter((t) => {
+        const status = getTradeStatus(t);
+        return (
+          (this.filterProfitLoss == 'PROFIT' && status == 'WIN') ||
+          (this.filterProfitLoss == 'LOSS' && status == 'LOSS')
+        );
+      });
     }
 
     result.sort((a, b) => {

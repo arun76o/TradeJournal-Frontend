@@ -1,0 +1,116 @@
+<div class="otp-container">
+  <mat-card class="otp-card">
+    <mat-card-header>
+      <div class="logo-icon">
+        <mat-icon>verified_user</mat-icon>
+      </div>
+      <mat-card-title>Verify Your Identity</mat-card-title>
+      <mat-card-subtitle>
+        We've sent a 6-digit verification code to:
+        <strong>{{ maskedEmail }}</strong>
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <!-- OTP Input Grid -->
+      <div class="otp-inputs">
+        @for (digit of digits; track $index; let i = $index) {
+          <input
+            #otpInput
+            type="text"
+            inputmode="numeric"
+            maxlength="1"
+            class="otp-digit"
+            [class.filled]="digit !== ''"
+            [class.error]="errorMessage"
+            [class.disabled]="isExpired || isVerified"
+            [value]="digit"
+            (input)="onDigitInput(i, $event)"
+            (keydown)="onKeydown(i, $event)"
+            (paste)="onPaste($event)"
+            [disabled]="isExpired || isVerified"
+            autocomplete="one-time-code"
+            [attr.aria-label]="'Digit ' + (i + 1)"
+          />
+        }
+      </div>
+
+      <!-- Error message -->
+      @if (errorMessage) {
+        <div class="otp-error">
+          <mat-icon>error_outline</mat-icon>
+          {{ errorMessage }}
+        </div>
+      }
+
+      <!-- Expired message -->
+      @if (isExpired && !errorMessage) {
+        <div class="otp-error">
+          <mat-icon>timer_off</mat-icon>
+          This verification code has expired. Request a new code.
+        </div>
+      }
+
+      <!-- Verified message -->
+      @if (isVerified) {
+        <div class="otp-success">
+          <mat-icon>check_circle</mat-icon>
+          Verification successful! Redirecting...
+        </div>
+      }
+
+      <!-- Verify Button -->
+      <button
+        mat-raised-button
+        color="primary"
+        class="full-width verify-btn"
+        (click)="verifyOtp()"
+        [disabled]="isLoading || !isOtpComplete || isExpired || isVerified">
+        <mat-spinner diameter="20" *ngIf="isLoading"></mat-spinner>
+        <mat-icon *ngIf="!isLoading">check_circle</mat-icon>
+        <span *ngIf="!isLoading">Verify Code</span>
+        <span *ngIf="isLoading">Verifying...</span>
+      </button>
+
+      <!-- Timer & Resend -->
+      <div class="otp-footer">
+        @if (!isExpired) {
+          <div class="expiry-timer">
+            <mat-icon>schedule</mat-icon>
+            Code expires in <strong>{{ formattedTime }}</strong>
+          </div>
+        }
+
+        <div class="resend-section">
+          @if (!canResend) {
+            <span class="resend-cooldown">
+              Resend code in <strong>{{ formattedResendTime }}</strong>
+            </span>
+          } @else {
+            <button
+              mat-button
+              color="primary"
+              class="resend-btn"
+              (click)="resendCode()"
+              [disabled]="isResending">
+              @if (isResending) {
+                <mat-spinner diameter="16"></mat-spinner>
+              } @else {
+                <mat-icon>refresh</mat-icon>
+              }
+              Resend Code
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Back to login -->
+      <div class="back-link">
+        <button mat-button (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Login
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

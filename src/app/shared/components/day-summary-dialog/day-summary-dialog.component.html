@@ -1,0 +1,39 @@
+@if (summary) {
+  <div class="tj-dialog-overlay" (click)="onBackdropClick($event)">
+    <div class="tj-dialog">
+      <div class="tj-dialog-header">
+        <h2>{{ formattedDate }}</h2>
+        <button class="tj-dialog-close" (click)="onClose()">
+          <span>&times;</span>
+        </button>
+      </div>
+
+      <div class="tj-dialog-divider"></div>
+
+      <div class="tj-dialog-body">
+        <div class="tj-summary-grid">
+          <div class="tj-summary-card">
+            <span class="tj-summary-label">Total P&L</span>
+            <span class="tj-summary-value" [class.positive]="summary.totalPnL > 0" [class.negative]="summary.totalPnL < 0">
+              {{ formatCurrency(summary.totalPnL) }}
+            </span>
+          </div>
+          <div class="tj-summary-card">
+            <span class="tj-summary-label">Lot Size</span>
+            <span class="tj-summary-value">{{ summary.lotSize }}</span>
+          </div>
+          <div class="tj-summary-card">
+            <span class="tj-summary-label">Profit</span>
+            <span class="tj-summary-value" [class.positive]="summary.profit > 0" [class.negative]="summary.profit < 0">
+              {{ formatCurrency(summary.profit) }}
+            </span>
+          </div>
+          <div class="tj-summary-card">
+            <span class="tj-summary-label">Trades</span>
+            <span class="tj-summary-value">{{ summary.trades }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

@@ -20,6 +20,7 @@ import { TradeService } from '../../services/trade.service';
 import { computeDashboardStats } from '../../core/utils/trade-analytics.util';
 import { DashboardRefreshService } from '../../core/services/dashboard-refresh.service';
 import { ProfileService } from '../../services/profile.service';
+import { TwoFactorService } from '../../core/services/two-factor.service';
 
 interface NavItem {
   label: string;
@@ -55,6 +56,7 @@ export class MainLayoutComponent implements OnInit {
   readonly settingsService = inject(SettingsService);
   private dashboardRefreshService = inject(DashboardRefreshService);
   private profileService = inject(ProfileService);
+  private twoFactorService = inject(TwoFactorService);
 
   isSidebarOpen = true;
   isMobileSidebarOpen = false;
@@ -220,6 +222,8 @@ export class MainLayoutComponent implements OnInit {
   }
 
   logout(): void {
+    this.twoFactorService.clearSession();
+    this.twoFactorService.clearChallenge();
     this.authService.logout().then(() => {
       localStorage.clear();
       this.router.navigate(['/login']);

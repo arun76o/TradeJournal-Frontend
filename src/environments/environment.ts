@@ -1,6 +1,7 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://tradejournal-api-bomp.onrender.com/api',
+  // apiUrl: 'https://tradejournal-api-bomp.onrender.com/api',
+  apiUrl: 'https://localhost:7265/api',
   firebase: {
     apiKey: 'AIzaSyCtfznyQQm2TGWEIjj0cc9KewPMVMStPEk',
     authDomain: 'tradejournal-5d4cf.firebaseapp.com',

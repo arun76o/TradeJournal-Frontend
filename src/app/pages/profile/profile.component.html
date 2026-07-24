@@ -106,7 +106,21 @@
               <div class="setting-label">Two-Factor Authentication</div>
               <div class="setting-desc">Add an extra layer of security</div>
             </div>
-            <span class="tj-status-badge breakeven">Coming Soon</span>
+            <div class="two-factor-toggle">
+              @if (twoFactorLoading) {
+                <mat-spinner diameter="20"></mat-spinner>
+              } @else {
+                <span class="toggle-label" [class.active]="twoFactorEnabled">
+                  {{ twoFactorEnabled ? 'ON' : 'OFF' }}
+                </span>
+                <mat-slide-toggle
+                  [checked]="twoFactorEnabled"
+                  (change)="toggleTwoFactor()"
+                  color="primary"
+                  aria-label="Toggle two-factor authentication">
+                </mat-slide-toggle>
+              }
+            </div>
           </div>
           <div class="tj-settings-row">
             <div>

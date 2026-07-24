@@ -6,6 +6,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TradeService } from '../../services/trade.service';
 import { SettingsService } from '../../core/services/settings.service';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { DaySummaryDialogComponent, DayTradingSummary } from '../../shared/components/day-summary-dialog/day-summary-dialog.component';
 import { getTradePnL } from '../../core/utils/trade-analytics.util';
 import { Trade } from '../../models/trade.model';
 import { Auth, authState } from '@angular/fire/auth';
@@ -27,6 +28,7 @@ interface CalendarDay {
     MatButtonModule,
     MatProgressSpinnerModule,
     PageHeaderComponent,
+    DaySummaryDialogComponent,
   ],
   templateUrl: './calendar.component.html',
 })
@@ -43,6 +45,12 @@ export class CalendarComponent implements OnInit {
   monthPnL = 0;
   monthTrades = 0;
 
+  private allTrades: Trade[] = [];
+
+  showDialog = false;
+  selectedDaySummary: DayTradingSummary | null = null;
+  selectedDayFormatted = '';
+
   ngOnInit(): void {
     authState(this.auth).subscribe((user) => {
       if (!user) {
@@ -52,6 +60,7 @@ export class CalendarComponent implements OnInit {
 
       this.tradeService.getTrades(user.uid).subscribe({
         next: (trades) => {
+          this.allTrades = trades;
           this.buildCalendar(trades);
           this.isLoading = false;
         },
@@ -127,6 +136,55 @@ export class CalendarComponent implements OnInit {
       .reduce((s, d) => s + d.tradeCount, 0);
   }
 
+  openDaySummary(day: CalendarDay): void {
+    if (!day.isCurrentMonth) return;
+
+    const selectedYear = day.date.getFullYear();
+    const selectedMonth = day.date.getMonth();
+    const selectedDay = day.date.getDate();
+    const selectedEndOfDay = new Date(selectedYear, selectedMonth, selectedDay, 23, 59, 59, 999);
+
+    const dayTrades = this.allTrades.filter((t) => {
+      const td = new Date(t.tradeDate);
+      return (
+        td.getFullYear() === selectedYear &&
+        td.getMonth() === selectedMonth &&
+        td.getDate() === selectedDay
+      );
+    });
+
+    const tradesUpToDate = this.allTrades.filter((t) => {
+      const td = new Date(t.tradeDate);
+      return td <= selectedEndOfDay;
+    });
+
+    const totalPnL = tradesUpToDate.reduce((s, t) => s + getTradePnL(t), 0);
+    const lotSize = dayTrades.reduce((s, t) => s + (Number(t.quantity) || 0), 0);
+    const profit = dayTrades.reduce((s, t) => s + getTradePnL(t), 0);
+
+    this.selectedDaySummary = {
+      date: day.date,
+      totalPnL,
+      lotSize,
+      profit,
+      trades: dayTrades.length,
+    };
+
+    this.selectedDayFormatted = day.date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
+    this.showDialog = true;
+  }
+
+  closeDialog(): void {
+    this.showDialog = false;
+    this.selectedDaySummary = null;
+  }
+
   prevMonth(): void {
     this.currentDate = new Date(
       this.currentDate.getFullYear(),
@@ -154,6 +212,7 @@ export class CalendarComponent implements OnInit {
       }
       this.tradeService.getTrades(user.uid).subscribe({
         next: (trades) => {
+          this.allTrades = trades;
           this.buildCalendar(trades);
           this.isLoading = false;
         },

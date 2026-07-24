@@ -32,4 +32,6 @@ export interface UserProfile {
 
   maxDailyLoss: number;
   maxRiskPerTrade: number;
+
+  twoFactorEnabled?: boolean;
 }

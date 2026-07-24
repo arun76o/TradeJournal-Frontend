@@ -682,6 +682,10 @@
   &.other-month {
     opacity: 0.35;
   }
+
+  &.clickable {
+    cursor: pointer;
+  }
 }
 
 // ─── Strategy Cards ──────────────────────────────────────────────

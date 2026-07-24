@@ -1,0 +1,19 @@
+.two-factor-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toggle-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--tj-text-muted);
+  min-width: 28px;
+  text-align: right;
+
+  &.active {
+    color: #667eea;
+  }
+}
