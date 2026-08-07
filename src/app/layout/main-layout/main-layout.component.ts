@@ -132,23 +132,19 @@ export class MainLayoutComponent implements OnInit {
 }
 
   ngOnInit(): void {
-
     this.checkScreenSize();
 
+    // Single authState subscription replaces three separate listeners.
+    // Sets user info, fetches profile, and fetches trades for account P&L.
     authState(this.auth).subscribe((user) => {
       if (!user) {
         return;
       }
+
       this.userName = user.displayName || user.email?.split('@')[0] || 'Trader';
       this.userEmail = user.email || '';
       this.userInitials = this.userName.slice(0, 2).toUpperCase();
-      // this.loadProfile(user.uid);
-    });
 
-    authState(this.auth).subscribe((user) => {
-      if (!user) {
-        return;
-      }
       this.profileService.getProfile(user.uid).subscribe({
         next: (profile) => {
           this.userName = profile.displayName;
@@ -159,20 +155,7 @@ export class MainLayoutComponent implements OnInit {
           console.error('Profile Error:', err);
         },
       });
-    });
 
-    this.dashboardRefreshService.refresh$.subscribe(() => {
-      this.loadAccountSummary();
-    });
-
-    this.loadAccountSummary();
-  }
-
-  loadAccountSummary(): void {
-    authState(this.auth).subscribe((user) => {
-      if (!user) {
-        return;
-      }
       this.tradeService.getTrades(user.uid).subscribe({
         next: (trades) => {
           this.accountPnL = computeDashboardStats(trades).totalPnL;
@@ -181,6 +164,25 @@ export class MainLayoutComponent implements OnInit {
           this.accountPnL = 0;
         },
       });
+    });
+
+    this.dashboardRefreshService.refresh$.subscribe(() => {
+      this.loadAccountSummary();
+    });
+  }
+
+  loadAccountSummary(): void {
+    const user = this.auth.currentUser;
+    if (!user) {
+      return;
+    }
+    this.tradeService.getTrades(user.uid).subscribe({
+      next: (trades) => {
+        this.accountPnL = computeDashboardStats(trades).totalPnL;
+      },
+      error: () => {
+        this.accountPnL = 0;
+      },
     });
   }
 
@@ -225,7 +227,14 @@ export class MainLayoutComponent implements OnInit {
     this.twoFactorService.clearSession();
     this.twoFactorService.clearChallenge();
     this.authService.logout().then(() => {
-      localStorage.clear();
+      // Selectively remove auth/session keys instead of clearing all localStorage.
+      // This preserves 'tj-theme' so the user's theme preference survives logout.
+      localStorage.removeItem('tj-2fa-token');
+      localStorage.removeItem('tj-2fa-challenge');
+      localStorage.removeItem('tj-2fa-challenge-expiry');
+      localStorage.removeItem('tj-2fa-masked-email');
+      localStorage.removeItem('tj-2fa-purpose');
+      localStorage.removeItem('tj-settings');
       this.router.navigate(['/login']);
     });
   }

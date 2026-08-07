@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
+import { Observable, BehaviorSubject, from, switchMap } from 'rxjs';
 import { Auth } from '@angular/fire/auth';
 import { environment } from '../../../environments/environment';
 
@@ -55,128 +55,79 @@ export class TwoFactorService {
   }
 
   getStatus(): Observable<TwoFactorStatusResponse> {
-    return new Observable<TwoFactorStatusResponse>((observer) => {
-      this.getAuthHeaders()
-        .then((headers) => {
-          this.http
-            .get<TwoFactorStatusResponse>(`${this.apiUrl}/status`, { headers })
-            .subscribe({
-              next: (res) => observer.next(res),
-              error: (err) => observer.error(err),
-            });
-        })
-        .catch((err) => observer.error(err));
-    });
+    return from(this.getAuthHeaders()).pipe(
+      switchMap((headers) =>
+        this.http.get<TwoFactorStatusResponse>(`${this.apiUrl}/status`, { headers })
+      )
+    );
   }
 
   startLoginTwoFactor(): Observable<StartTwoFactorResponse> {
-    return new Observable<StartTwoFactorResponse>((observer) => {
-      this.getAuthHeaders()
-        .then((headers) => {
-          this.http
-            .post<StartTwoFactorResponse>(
-              `${this.apiUrl}/start`,
-              { purpose: 'login' },
-              { headers }
-            )
-            .subscribe({
-              next: (res) => observer.next(res),
-              error: (err) => observer.error(err),
-            });
-        })
-        .catch((err) => observer.error(err));
-    });
+    return from(this.getAuthHeaders()).pipe(
+      switchMap((headers) =>
+        this.http.post<StartTwoFactorResponse>(
+          `${this.apiUrl}/start`,
+          { purpose: 'login' },
+          { headers }
+        )
+      )
+    );
   }
 
   startEnableTwoFactor(): Observable<StartTwoFactorResponse> {
-    return new Observable<StartTwoFactorResponse>((observer) => {
-      this.getAuthHeaders()
-        .then((headers) => {
-          this.http
-            .post<StartTwoFactorResponse>(
-              `${this.apiUrl}/enable/start`,
-              {},
-              { headers }
-            )
-            .subscribe({
-              next: (res) => observer.next(res),
-              error: (err) => observer.error(err),
-            });
-        })
-        .catch((err) => observer.error(err));
-    });
+    return from(this.getAuthHeaders()).pipe(
+      switchMap((headers) =>
+        this.http.post<StartTwoFactorResponse>(
+          `${this.apiUrl}/enable/start`,
+          {},
+          { headers }
+        )
+      )
+    );
   }
 
   verify(challengeId: string, otp: string): Observable<VerifyTwoFactorResponse> {
-    return new Observable<VerifyTwoFactorResponse>((observer) => {
-      this.getAuthHeaders()
-        .then((headers) => {
-          this.http
-            .post<VerifyTwoFactorResponse>(
-              `${this.apiUrl}/verify`,
-              { challengeId, otp },
-              { headers }
-            )
-            .subscribe({
-              next: (res) => observer.next(res),
-              error: (err) => observer.error(err),
-            });
-        })
-        .catch((err) => observer.error(err));
-    });
+    return from(this.getAuthHeaders()).pipe(
+      switchMap((headers) =>
+        this.http.post<VerifyTwoFactorResponse>(
+          `${this.apiUrl}/verify`,
+          { challengeId, otp },
+          { headers }
+        )
+      )
+    );
   }
 
   verifyDisable(challengeId: string, otp: string): Observable<any> {
-    return new Observable<any>((observer) => {
-      this.getAuthHeaders()
-        .then((headers) => {
-          this.http
-            .post(
-              `${this.apiUrl}/disable-with-verify`,
-              { challengeId, otp },
-              { headers }
-            )
-            .subscribe({
-              next: (res) => observer.next(res),
-              error: (err) => observer.error(err),
-            });
-        })
-        .catch((err) => observer.error(err));
-    });
+    return from(this.getAuthHeaders()).pipe(
+      switchMap((headers) =>
+        this.http.post(
+          `${this.apiUrl}/disable-with-verify`,
+          { challengeId, otp },
+          { headers }
+        )
+      )
+    );
   }
 
   resend(challengeId: string): Observable<ResendTwoFactorResponse> {
-    return new Observable<ResendTwoFactorResponse>((observer) => {
-      this.getAuthHeaders()
-        .then((headers) => {
-          this.http
-            .post<ResendTwoFactorResponse>(
-              `${this.apiUrl}/resend`,
-              { challengeId },
-              { headers }
-            )
-            .subscribe({
-              next: (res) => observer.next(res),
-              error: (err) => observer.error(err),
-            });
-        })
-        .catch((err) => observer.error(err));
-    });
+    return from(this.getAuthHeaders()).pipe(
+      switchMap((headers) =>
+        this.http.post<ResendTwoFactorResponse>(
+          `${this.apiUrl}/resend`,
+          { challengeId },
+          { headers }
+        )
+      )
+    );
   }
 
   disable(): Observable<any> {
-    return new Observable<any>((observer) => {
-      this.getAuthHeaders()
-        .then((headers) => {
-          this.http
-            .post(`${this.apiUrl}/disable`, {}, { headers })
-            .subscribe({
-              next: (res) => observer.next(res),
-              error: (err) => observer.error(err),
-            });
-        })
-        .catch((err) => observer.error(err));
-    });
+    return from(this.getAuthHeaders()).pipe(
+      switchMap((headers) =>
+        this.http.post(`${this.apiUrl}/disable`, {}, { headers })
+      )
+    );
   }
 
   // Session token management
