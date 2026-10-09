@@ -247,6 +247,13 @@
               multiple
               (change)="onFileSelected($event)"
             />
+
+            @if (isCompressing) {
+              <div class="upload-progress">
+                <mat-spinner diameter="22"></mat-spinner>
+                <span>Optimizing images...</span>
+              </div>
+            }
           </div>
         </div>
 
@@ -263,13 +270,15 @@
               >
                 <mat-icon>close</mat-icon>
               </button>
+
+              <span class="image-size-badge">Saved</span>
             </div>
           }
 
-          <!-- New Images -->
-          @for (image of newImagePreviews; track image; let i = $index) {
+          <!-- New Images (compressed, uploaded when the trade is saved) -->
+          @for (image of pendingImages; track image; let i = $index) {
             <div class="image-container">
-              <img [src]="image" class="preview-image" />
+              <img [src]="image.previewUrl" class="preview-image" />
 
               <button
                 type="button"
@@ -278,6 +287,13 @@
               >
                 <mat-icon>close</mat-icon>
               </button>
+
+              <span
+                class="image-size-badge"
+                [class.optimized]="image.compressed"
+              >
+                {{ compressionLabel(image) }}
+              </span>
             </div>
           }
         </div>
@@ -306,7 +322,7 @@
             mat-raised-button
             color="primary"
             type="submit"
-            [disabled]="tradeForm.invalid || isLoading"
+            [disabled]="tradeForm.invalid || isLoading || isCompressing"
           >
             @if (isLoading) {
               <mat-spinner diameter="20"></mat-spinner>

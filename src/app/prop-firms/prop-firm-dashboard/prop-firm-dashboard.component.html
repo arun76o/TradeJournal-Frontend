@@ -1,0 +1,416 @@
+<div class="tj-page tj-firm-dash">
+  @if (isLoading) {
+    <div class="tj-card">
+      <div class="tj-loading">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading prop firm workspace...</p>
+      </div>
+    </div>
+  } @else if (loadError) {
+    <div class="tj-firm-empty-state">
+      <mat-icon>error_outline</mat-icon>
+      <h2>{{ loadError }}</h2>
+      <p>
+        Prop firms are isolated from your regular trade journal. Pick a firm from the list, or
+        create a new one.
+      </p>
+      <div class="tj-firm-actions">
+        <button mat-stroked-button (click)="viewAllFirms()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Firms
+        </button>
+        <button mat-raised-button color="primary" (click)="addPropFirm()">
+          <mat-icon>add</mat-icon>
+          Add Prop Firm
+        </button>
+      </div>
+    </div>
+  } @else if (!firm) {
+    <div class="tj-firm-empty-state">
+      <mat-icon>account_balance</mat-icon>
+      <h2>Select a Prop Firm</h2>
+      <p>
+        Choose a prop firm from the list to open its isolated workspace with its own balance, risk
+        limits and trades. Prop firm trades are never mixed with your regular journal trades.
+      </p>
+      <button mat-raised-button color="primary" (click)="addPropFirm()">
+        <mat-icon>add</mat-icon>
+        Add Prop Firm
+      </button>
+    </div>
+  } @else {
+    <app-page-header
+      [title]="firm.firmName"
+      subtitle="Prop firm workspace - journal-based figures only"
+    >
+      <div actions class="tj-btn-group tj-firm-header-actions">
+        <button mat-stroked-button (click)="viewAllFirms()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Prop Firms
+        </button>
+        <button mat-raised-button color="primary" (click)="addTrade()">
+          <mat-icon>add</mat-icon>
+          Add Trade
+        </button>
+        <button mat-stroked-button (click)="viewTrades()">
+          <mat-icon>history</mat-icon>
+          View Trade History
+        </button>
+        <button mat-stroked-button (click)="editFirm()">
+          <mat-icon>edit</mat-icon>
+          Edit
+        </button>
+        <button mat-stroked-button color="warn" (click)="deleteFirm()">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+      </div>
+    </app-page-header>
+
+    <!-- Account information -->
+    <div class="tj-card">
+      <div class="tj-card-header">
+        <h3><mat-icon>badge</mat-icon> Account Information</h3>
+      </div>
+      <div class="tj-card-body">
+        <div class="tj-firm-info-grid">
+          <div class="tj-firm-info-item">
+            <span class="label">Account Name</span>
+            <span class="value plain">{{ firm.accountName || firm.firmName }}</span>
+          </div>
+          <div class="tj-firm-info-item">
+            <span class="label">Account ID</span>
+            <span class="value">{{ firm.accountId || '-' }}</span>
+          </div>
+          <div class="tj-firm-info-item">
+            <span class="label">Account Type</span>
+            <span class="value plain">{{ firm.accountType || '-' }}</span>
+          </div>
+          <div class="tj-firm-info-item">
+            <span class="label">Currency</span>
+            <span class="value">{{ currency }}</span>
+          </div>
+          <div class="tj-firm-info-item">
+            <span class="label">Account Size</span>
+            <span class="value">{{ formatMoney(accountSizeValue) }}</span>
+          </div>
+          <div class="tj-firm-info-item">
+            <span class="label">Amount Spent</span>
+            <span class="value">{{ formatAmountSpent() }}</span>
+          </div>
+          <div class="tj-firm-info-item">
+            <span class="label">Taken Payout</span>
+            <span class="value">{{ formatTakenPayout() }}</span>
+          </div>
+          <div class="tj-firm-info-item">
+            <span class="label">Status</span>
+            <span class="value plain">
+              <span
+                class="tj-firm-status-badge"
+                [class.failed]="firmStatus === 'Failed'"
+              >
+                {{ firmStatus }}
+              </span>
+            </span>
+          </div>
+          <div class="tj-firm-info-item">
+            <span class="label">Start Date</span>
+            <span class="value">
+              {{ firm.startDate ? (firm.startDate | date: 'mediumDate') : '-' }}
+            </span>
+          </div>
+        </div>
+        @if (firm.notes) {
+          <div class="tj-firm-journal-note">
+            <mat-icon>sticky_note_2</mat-icon>
+            <span>{{ firm.notes }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="tj-kpi-grid">
+      <app-kpi-card
+        label="Initial Balance"
+        [value]="formatMoney(firm.initialBalance)"
+        icon="savings"
+        iconColor="primary"
+        delay="0s"
+      />
+      <app-kpi-card
+        label="Current Balance"
+        [value]="formatMoney(currentBalance)"
+        icon="account_balance_wallet"
+        iconColor="primary"
+        delay="0.03s"
+      />
+      <app-kpi-card
+        label="Total Trades"
+        [value]="stats?.totalTrades ?? 0"
+        icon="show_chart"
+        iconColor="info"
+        delay="0.06s"
+      />
+      <app-kpi-card
+        label="Winning Trades"
+        [value]="stats?.winningTrades ?? 0"
+        icon="thumb_up"
+        iconColor="success"
+        delay="0.09s"
+      />
+      <app-kpi-card
+        label="Losing Trades"
+        [value]="stats?.losingTrades ?? 0"
+        icon="thumb_down"
+        iconColor="danger"
+        delay="0.12s"
+      />
+      <app-kpi-card
+        label="Win Rate"
+        [value]="winRateDisplay"
+        icon="percent"
+        iconColor="warning"
+        [subtitle]="(stats?.winningTrades ?? 0) + 'W / ' + (stats?.losingTrades ?? 0) + 'L'"
+        delay="0.15s"
+      />
+      <app-kpi-card
+        label="Total Profit / Loss"
+        [value]="formatMoney(netPnl)"
+        [icon]="netPnl >= 0 ? 'trending_up' : 'trending_down'"
+        [iconColor]="netPnl >= 0 ? 'success' : 'danger'"
+        [valueClass]="netPnl >= 0 ? 'positive' : 'negative'"
+        delay="0.18s"
+      />
+      <app-kpi-card
+        label="Peak Drawdown"
+        [value]="formatMoney(peakDrawdown)"
+        icon="trending_down"
+        iconColor="danger"
+        delay="0.21s"
+      />
+    </div>
+
+    <!-- Risk limits -->
+    <div class="tj-card">
+      <div class="tj-card-header">
+        <h3><mat-icon>policy</mat-icon> Risk Limits</h3>
+        <p>Calculated from journal entries only, no broker or challenge-server data.</p>
+      </div>
+      <div class="tj-card-body">
+        <div class="tj-firm-risk-grid">
+          <div class="tj-firm-risk-item">
+            <div class="risk-head">
+              <span class="risk-label"><mat-icon>flag</mat-icon> Profit Target</span>
+              <span class="risk-value" [class.positive]="(profitTargetProgress ?? 0) >= 100">
+                {{ profitTargetAmount !== null ? formatMoney(profitTargetAmount) : 'Not set' }}
+              </span>
+            </div>
+            <div class="risk-track">
+              <div
+                class="risk-fill"
+                [class.positive]="(profitTargetProgress ?? 0) >= 100"
+                [class.warning]="
+                  (profitTargetProgress ?? 0) >= 50 && (profitTargetProgress ?? 0) < 100
+                "
+                [style.width.%]="barWidth(profitTargetProgress)"
+              ></div>
+            </div>
+            <div class="risk-note">
+              @if (profitTargetAmount === null || profitTargetProgress === null) {
+                Set a profit target percentage when creating the firm to track progress.
+              } @else {
+                {{ profitTargetPercent }}% of {{ formatMoney(accountSizeValue) }} &middot;
+                {{ profitTargetProgress | number: '1.1-1' }}% reached &middot;
+                {{ formatMoney(netPnl) }} profit recorded
+              }
+            </div>
+          </div>
+
+          <div class="tj-firm-risk-item">
+            <div class="risk-head">
+              <span class="risk-label"><mat-icon>wb_sunny</mat-icon> Today's P&amp;L</span>
+              <span
+                class="risk-value"
+                [class.positive]="todayPnl >= 0"
+                [class.negative]="todayPnl < 0"
+              >
+                {{ formatMoney(todayPnl) }}
+              </span>
+            </div>
+            <div class="risk-track">
+              <div
+                class="risk-fill"
+                [class.positive]="todayPnl >= 0 && (dailyLossUsage ?? 0) < 50"
+                [class.warning]="(dailyLossUsage ?? 0) >= 50 && (dailyLossUsage ?? 0) < 100"
+                [class.negative]="(dailyLossUsage ?? 0) >= 100"
+                [style.width.%]="dailyLossUsage === null ? 0 : (dailyLossUsage | number: '1.0-0')"
+              ></div>
+            </div>
+            <div class="risk-note">
+              @if (dailyLossUsage === null) {
+                No daily loss limit set for this account.
+              } @else if (todayPnl >= 0) {
+                Daily loss limit {{ formatMoney(firm.maximumDailyLoss || 0) }}, none used today.
+              } @else {
+                {{ dailyLossUsage | number: '1.1-1' }}% of the
+                {{ formatMoney(firm.maximumDailyLoss || 0) }} daily loss limit used today.
+              }
+            </div>
+          </div>
+
+          <div class="tj-firm-risk-item">
+            <div class="risk-head">
+              <span class="risk-label"><mat-icon>trending_down</mat-icon> Overall Drawdown</span>
+              <span class="risk-value" [class.negative]="(overallDrawdownUsage ?? 0) >= 100">
+                {{
+                  overallDrawdownLimit !== null ? formatMoney(overallDrawdownLimit) : 'Not configured'
+                }}
+              </span>
+            </div>
+            <div class="risk-track">
+              <div
+                class="risk-fill"
+                [class.warning]="
+                  (overallDrawdownUsage ?? 0) >= 50 && (overallDrawdownUsage ?? 0) < 100
+                "
+                [class.negative]="(overallDrawdownUsage ?? 0) >= 100"
+                [class.positive]="drawdownFromInitial <= 0"
+                [style.width.%]="barWidth(overallDrawdownUsage)"
+              ></div>
+            </div>
+            <div class="risk-note">
+              @if (overallDrawdownLimit === null || overallDrawdownUsage === null) {
+                No overall drawdown limit configured for this account.
+              } @else {
+                {{ overallDrawdownPercent }}% of {{ formatMoney(accountSizeValue) }} &middot;
+                {{ overallDrawdownUsage | number: '1.1-1' }}% of limit used &middot; Actual:
+                {{ formatMoney(drawdownFromInitial) }}
+              }
+            </div>
+          </div>
+        </div>
+
+        <div class="tj-firm-journal-note">
+          <mat-icon>info</mat-icon>
+          <span>
+            All figures above are computed from trades recorded in this app (journal-based). They
+            do not reflect the balance reported by your prop firm platform.
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Equity curve -->
+    <div class="tj-chart-card">
+      <div class="tj-chart-header">
+        <h3><mat-icon>show_chart</mat-icon> Equity Curve</h3>
+        <p>Starting balance to current balance, in {{ currency }}</p>
+      </div>
+      <div class="tj-chart-body">
+        @if (hasTrades) {
+          <canvas baseChart [data]="equityChartData" [options]="equityOptions" type="line"></canvas>
+        } @else {
+          <div class="tj-firm-empty-state">
+            <mat-icon>show_chart</mat-icon>
+            <h2>No equity data yet</h2>
+            <p>Add your first prop trade to start the equity curve for this account.</p>
+            <button mat-raised-button color="primary" (click)="addTrade()">
+              <mat-icon>add</mat-icon>
+              Add Trade
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Recent trades -->
+    <div class="tj-card">
+      <div class="tj-card-header">
+        <h3><mat-icon>receipt_long</mat-icon> Recent Trades</h3>
+        <p>Last {{ recentTrades.length }} of {{ trades.length }} trades for this firm</p>
+      </div>
+
+      @if (hasTrades) {
+        <div class="tj-table-container">
+          <table class="tj-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Symbol</th>
+                <th>Side</th>
+                <th>Net P&amp;L</th>
+                <th>Strategy</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (trade of recentTrades; track trade.id) {
+                <tr>
+                  <td class="tj-date-cell">
+                    <mat-icon>event</mat-icon>
+                    {{ trade.tradeDate | date: 'dd MMM yyyy' }}
+                  </td>
+                  <td>
+                    <div class="tj-symbol-cell">
+                      <mat-icon>candlestick_chart</mat-icon>
+                      <strong>{{ trade.symbol }}</strong>
+                    </div>
+                  </td>
+                  <td>
+                    <span
+                      class="tj-side-badge"
+                      [class.buy]="trade.side === 'BUY'"
+                      [class.sell]="trade.side === 'SELL'"
+                    >
+                      {{ trade.side }}
+                    </span>
+                  </td>
+                  <td>
+                    <span
+                      class="tj-pnl-badge"
+                      [class.positive]="trade.netProfit >= 0"
+                      [class.negative]="trade.netProfit < 0"
+                    >
+                      {{ formatMoney(trade.netProfit) }}
+                    </span>
+                  </td>
+                  <td>{{ trade.strategy || '-' }}</td>
+                  <td>
+                    <span
+                      class="tj-status-badge"
+                      [class.win]="getStatus(trade) === 'WIN'"
+                      [class.loss]="getStatus(trade) === 'LOSS'"
+                      [class.breakeven]="getStatus(trade) === 'BREAKEVEN'"
+                    >
+                      {{ getStatus(trade) }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="tj-card-footer tj-card-footer-row">
+          <button mat-stroked-button (click)="viewTrades()">
+            <mat-icon>list</mat-icon>
+            View Trade History
+          </button>
+          <button mat-stroked-button (click)="addTrade()">
+            <mat-icon>add</mat-icon>
+            Add Trade
+          </button>
+        </div>
+      } @else {
+        <div class="tj-no-data" style="padding: 48px 24px">
+          <mat-icon>receipt_long</mat-icon>
+          <p>No trades yet for this prop firm.</p>
+          <button mat-raised-button color="primary" (click)="addTrade()">
+            <mat-icon>add</mat-icon>
+            Add Trade
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

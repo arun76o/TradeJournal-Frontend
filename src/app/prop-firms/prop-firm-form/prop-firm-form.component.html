@@ -1,0 +1,254 @@
+<div class="tj-page tj-form-page">
+  <app-page-header
+    [title]="isEditMode ? 'Edit Prop Firm' : 'Add Prop Firm'"
+    subtitle="Manage a prop trading account as its own isolated workspace"
+  ></app-page-header>
+
+  <div class="tj-firm-context">
+    <mat-icon>account_balance</mat-icon>
+    <span>
+      Prop firm data and its trades are stored separately from your regular trade journal and
+      never appear in the main dashboard.
+    </span>
+    <span class="spacer"></span>
+    <button mat-button type="button" (click)="cancel()">Back to firms</button>
+  </div>
+
+  @if (!formReady && !loadError) {
+    <div class="tj-form-card">
+      <div class="tj-loading">
+        <mat-spinner diameter="40"></mat-spinner>
+        <p>Loading prop firm...</p>
+      </div>
+    </div>
+  } @else if (loadError) {
+    <div class="tj-firm-empty-state">
+      <mat-icon>error_outline</mat-icon>
+      <h2>{{ loadError }}</h2>
+      <p>Only the owner of a prop firm can edit it.</p>
+      <button mat-raised-button color="primary" (click)="cancel()">
+        <mat-icon>arrow_back</mat-icon>
+        Back
+      </button>
+    </div>
+  } @else {
+    <div class="tj-form-card">
+      <div class="tj-form-header">
+        <div class="header-icon-wrap">
+          <mat-icon>{{ isEditMode ? 'edit' : 'add_business' }}</mat-icon>
+        </div>
+        <div>
+          <h2>{{ isEditMode ? 'Firm Details' : 'New Prop Firm' }}</h2>
+          <p>Set the account size and the risk rules that apply to this account.</p>
+        </div>
+      </div>
+
+      <div class="tj-form-body">
+        <form [formGroup]="firmForm" (ngSubmit)="saveFirm()">
+          <div class="tj-form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Prop Firm Name</mat-label>
+              <input
+                matInput
+                formControlName="firmName"
+                placeholder="e.g., FTMO, Apex, The5ers"
+                autocomplete="off"
+              />
+              <mat-icon matPrefix>account_balance</mat-icon>
+              @if (
+                firmForm.get('firmName')?.hasError('required') &&
+                firmForm.get('firmName')?.touched
+              ) {
+                <mat-error>Prop firm name is required</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Account Name</mat-label>
+              <input
+                matInput
+                formControlName="accountName"
+                placeholder="e.g., Challenge 100K"
+                autocomplete="off"
+              />
+              <mat-icon matPrefix>badge</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="tj-form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Account ID</mat-label>
+              <input
+                matInput
+                formControlName="accountId"
+                placeholder="Login / account number"
+                autocomplete="off"
+              />
+              <mat-icon matPrefix>tag</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Account Type</mat-label>
+              <mat-select formControlName="accountType">
+                @for (type of accountTypes; track type) {
+                  <mat-option [value]="type">{{ type }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>category</mat-icon>
+            </mat-form-field>
+          </div>
+
+          <div class="tj-form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Account Size / Initial Balance</mat-label>
+              <input matInput type="number" formControlName="initialBalance" step="any" />
+              <mat-icon matPrefix>savings</mat-icon>
+              @if (
+                firmForm.get('initialBalance')?.hasError('required') &&
+                firmForm.get('initialBalance')?.touched
+              ) {
+                <mat-error>Initial balance is required</mat-error>
+              } @else if (
+                firmForm.get('initialBalance')?.hasError('min') &&
+                firmForm.get('initialBalance')?.touched
+              ) {
+                <mat-error>Must be greater than 0</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Account Currency</mat-label>
+              <mat-select formControlName="accountCurrency">
+                @for (code of currencies; track code) {
+                  <mat-option [value]="code">{{ code }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>payments</mat-icon>
+              <mat-hint>Prop trades are recorded in this currency.</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="tj-form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Amount Spent</mat-label>
+              <input matInput type="number" formControlName="amountSpent" step="any" min="0" />
+              <mat-icon matPrefix>receipt_long</mat-icon>
+              @if (
+                firmForm.get('amountSpent')?.hasError('required') &&
+                firmForm.get('amountSpent')?.touched
+              ) {
+                <mat-error>Amount spent is required</mat-error>
+              } @else if (
+                firmForm.get('amountSpent')?.hasError('min') &&
+                firmForm.get('amountSpent')?.touched
+              ) {
+                <mat-error>Must be 0 or greater</mat-error>
+              }
+              <mat-hint>Total amount paid to the firm, recorded in INR.</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status">
+                @for (state of statuses; track state) {
+                  <mat-option [value]="state">{{ state }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>flag</mat-icon>
+              <mat-hint>Set manually. Never changed by profit or loss.</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="tj-form-row single">
+            <mat-form-field appearance="outline">
+              <mat-label>Payouts</mat-label>
+              <input matInput type="number" formControlName="payouts" step="any" min="0" />
+              <mat-icon matPrefix>payments</mat-icon>
+              @if (firmForm.get('payouts')?.hasError('min') && firmForm.get('payouts')?.touched) {
+                <mat-error>Must be 0 or greater</mat-error>
+              }
+              <mat-hint>
+                Total payout received from this firm, recorded in
+                {{ firmForm.get('accountCurrency')?.value || 'USD' }}.
+              </mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="tj-form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Start Date</mat-label>
+              <input matInput [matDatepicker]="startPicker" formControlName="startDate" />
+              <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+              <mat-datepicker #startPicker></mat-datepicker>
+              <mat-icon matPrefix>event</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Account Size (optional)</mat-label>
+              <input matInput type="number" formControlName="accountSize" step="any" />
+              <mat-icon matPrefix>straighten</mat-icon>
+              <mat-hint>Reported size, if different from the initial balance.</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="tj-form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Profit Target (%)</mat-label>
+              <input matInput type="number" formControlName="profitTarget" step="any" />
+              <mat-icon matPrefix>flag</mat-icon>
+              <mat-hint>Percentage of the account size, e.g. 8 for 8%.</mat-hint>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Max Daily Loss</mat-label>
+              <input matInput type="number" formControlName="maximumDailyLoss" step="any" />
+              <mat-icon matPrefix>wb_sunny</mat-icon>
+              <mat-hint>Maximum loss allowed in a single trading day.</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="tj-form-row single">
+            <mat-form-field appearance="outline">
+              <mat-label>Max Overall Drawdown (%)</mat-label>
+              <input
+                matInput
+                type="number"
+                formControlName="maximumOverallDrawdown"
+                step="any"
+              />
+              <mat-icon matPrefix>trending_down</mat-icon>
+              <mat-hint>Percentage of the account size, e.g. 10 for 10%.</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <div class="tj-form-row single">
+            <mat-form-field appearance="outline">
+              <mat-label>Notes</mat-label>
+              <textarea matInput formControlName="notes" rows="3" placeholder="Optional notes"></textarea>
+              <mat-icon matPrefix>sticky_note_2</mat-icon>
+            </mat-form-field>
+          </div>
+
+          @if (saveError) {
+            <div class="tj-form-error">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ saveError }}</span>
+            </div>
+          }
+
+          <div class="tj-form-actions">
+            <button mat-raised-button color="primary" type="submit" [disabled]="isLoading">
+              @if (isLoading) {
+                <mat-spinner diameter="18"></mat-spinner>
+              } @else {
+                <mat-icon>save</mat-icon>
+              }
+              {{ isEditMode ? 'Save Changes' : 'Create Prop Firm' }}
+            </button>
+            <button mat-stroked-button type="button" (click)="cancel()">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

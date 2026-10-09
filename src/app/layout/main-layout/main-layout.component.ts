@@ -89,6 +89,12 @@ export class MainLayoutComponent implements OnInit {
       section: 'main',
     },
     {
+      label: 'Prop Firms',
+      icon: 'account_balance',
+      route: '/prop-firms',
+      section: 'main',
+    },
+    {
       label: 'Analytics',
       icon: 'analytics',
       route: '/analytics',

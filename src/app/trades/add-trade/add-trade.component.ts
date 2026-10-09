@@ -22,8 +22,12 @@ import { SettingsService } from '../../core/services/settings.service';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { AlertService } from '../../core/services/alert.service';
 import { DashboardRefreshService } from '../../core/services/dashboard-refresh.service';
+import {
+  ImageUploadService,
+  PendingImage,
+} from '../../core/services/image-upload.service';
+import { formatBytes } from '../../core/utils/image-compression.util';
 import { Auth, authState } from '@angular/fire/auth';
-import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -52,11 +56,12 @@ export class AddTradeComponent {
   isLoading = false;
   usdInrRate = 86;
 
-  selectedFiles: File[] = [];
-  // imagePreviews: string[] = [];
+  /** Newly picked images, already compressed, awaiting upload. */
+  pendingImages: PendingImage[] = [];
+  /** True while the selected screenshots are being compressed. */
+  isCompressing = false;
 
   existingImageUrls: string[] = [];
-  newImagePreviews: string[] = [];
   isDragging = false;
 
   @ViewChild('fileInput')
@@ -71,8 +76,8 @@ export class AddTradeComponent {
     private tradeService: TradeService,
     private alertService: AlertService,
     private dashboardRefreshService: DashboardRefreshService,
+    private imageUpload: ImageUploadService,
     private auth: Auth,
-    private http: HttpClient,
     private route: ActivatedRoute,
   ) {
     this.tradeForm = this.fb.group({
@@ -286,37 +291,49 @@ export class AddTradeComponent {
 
     this.isDragging = false;
   }
-  processFiles(files: FileList) {
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      this.selectedFiles.push(file);
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.newImagePreviews.push(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+  async processFiles(files: FileList) {
+    const picked = Array.from(files ?? []);
+    if (picked.length === 0) return;
+
+    this.isCompressing = true;
+
+    try {
+      const { images, errors } = await this.imageUpload.prepare(picked);
+      this.pendingImages.push(...images);
+
+      if (errors.length) {
+        this.alertService.warning(
+          'Optimization Skipped',
+          errors.join('\n'),
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      this.alertService.error(
+        'Compression Failed',
+        'The selected images could not be processed.',
+      );
+    } finally {
+      this.isCompressing = false;
     }
   }
 
   async uploadImagesToCloudinary(): Promise<string[]> {
-    if (this.selectedFiles.length === 0) {
+    if (this.pendingImages.length === 0) {
       return [];
     }
-    const imageUrls: string[] = [];
-    for (const file of this.selectedFiles) {
-      const data = new FormData();
+    return this.imageUpload.uploadAll(this.pendingImages.map((p) => p.file));
+  }
 
-      data.append('file', file);
-      data.append('upload_preset', 'trade-journal');
-
-      const response: any = await this.http
-        .post('https://api.cloudinary.com/v1_1/dytjlbf1c/image/upload', data)
-        .toPromise();
-
-      imageUrls.push(response.secure_url);
+  /** Original → compressed size shown under every pending thumbnail. */
+  compressionLabel(image: PendingImage): string {
+    if (image.compressed) {
+      return `${formatBytes(image.originalSize)} → ${formatBytes(image.compressedSize)}`;
     }
-
-    return imageUrls;
+    if (image.compressionError) {
+      return `${formatBytes(image.originalSize)} · original kept`;
+    }
+    return `${formatBytes(image.originalSize)} · already optimized`;
   }
 
   removeExistingImage(index: number) {
@@ -324,8 +341,7 @@ export class AddTradeComponent {
   }
 
   removeNewImage(index: number) {
-    this.newImagePreviews.splice(index, 1);
-    this.selectedFiles.splice(index, 1);
+    this.pendingImages.splice(index, 1);
   }
 
   resetForm() {
@@ -338,9 +354,9 @@ export class AddTradeComponent {
       grossProfitINR: null,
       netProfitINR: null,
     });
-    this.selectedFiles = [];
+    this.pendingImages = [];
     this.existingImageUrls = [];
-    this.newImagePreviews = [];
+    this.isCompressing = false;
     // Clear file input
     if (this.fileInput) {
       this.fileInput.nativeElement.value = '';

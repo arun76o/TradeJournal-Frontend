@@ -23,6 +23,7 @@
         <app-kpi-card label="Best Trade" [value]="formatCurrency(stats.bestTrade)" icon="emoji_events" iconColor="success" valueClass="positive" delay="0.45s" />
         <app-kpi-card label="Worst Trade" [value]="formatCurrency(stats.worstTrade)" icon="warning" iconColor="danger" valueClass="negative" delay="0.5s" />
         <app-kpi-card label="Current Month P&L" [value]="formatCurrency(stats.currentMonthPnL)" icon="calendar_today" iconColor="primary" [valueClass]="stats.currentMonthPnL >= 0 ? 'positive' : 'negative'" delay="0.55s" />
+        <app-kpi-card label="Total Prop Firm Amount" [value]="formatPropFirmTotal()" icon="account_balance" iconColor="warning" delay="0.6s" />
       </div>
     }
 

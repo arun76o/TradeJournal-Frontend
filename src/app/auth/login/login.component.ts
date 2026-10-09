@@ -72,7 +72,11 @@ export class LoginComponent {
           }
           this.isLoading = false;
         },
-        error: () => {
+        error: (error) => {
+          console.error(
+            '[Login] Two-factor status check failed after successful authentication.',
+            error
+          );
           this.alertService.success('Login Success!');
           this.router.navigate(['/dashboard']);
           this.isLoading = false;
@@ -118,7 +122,11 @@ export class LoginComponent {
           }
           this.isLoading = false;
         },
-        error: () => {
+        error: (error) => {
+          console.error(
+            '[Login] Two-factor status check failed after successful Google authentication.',
+            error
+          );
           this.alertService.success('Google Login Success!');
           this.router.navigate(['/dashboard']);
           this.isLoading = false;

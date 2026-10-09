@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,8 +6,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
+import { Subscription } from 'rxjs';
 import { TradeService } from '../../services/trade.service';
+import { PropFirmService } from '../../services/prop-firm.service';
 import { SettingsService } from '../../core/services/settings.service';
+import { DashboardRefreshService } from '../../core/services/dashboard-refresh.service';
 import { Trade } from '../../models/trade.model';
 import { KpiCardComponent } from '../../shared/components/kpi-card/kpi-card.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
@@ -23,6 +26,7 @@ import {
   DayOfWeekPnL,
 } from '../../core/utils/trade-analytics.util';
 import { getBaseChartOptions } from '../../core/utils/chart-options.util';
+import { formatFirmCurrency } from '../../core/utils/prop-firm-analytics.util';
 import { Auth, authState } from '@angular/fire/auth';
 
 @Component({
@@ -39,8 +43,10 @@ import { Auth, authState } from '@angular/fire/auth';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   private tradeService = inject(TradeService);
+  private propFirmService = inject(PropFirmService);
+  private dashboardRefreshService = inject(DashboardRefreshService);
   private router = inject(Router);
   private auth = inject(Auth);
   readonly settings = inject(SettingsService);
@@ -50,6 +56,11 @@ export class HomeComponent implements OnInit {
   recentTrades: Trade[] = [];
   heatmapData: DayOfWeekPnL[] = [];
   isLoading = true;
+
+  /** Sum of Amount Spent across every prop firm (Active and Failed), reported in INR. */
+  totalPropFirmAmount = 0;
+
+  private refreshSubscription?: Subscription;
 
   doughnutChartData: ChartConfiguration<'doughnut'>['data'] = {
     labels: ['Wins', 'Losses', 'Breakeven'],
@@ -114,6 +125,37 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadDashboard();
+    this.loadPropFirmTotal();
+
+    this.refreshSubscription = this.dashboardRefreshService.refresh$.subscribe(() => {
+      this.loadPropFirmTotal();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.refreshSubscription?.unsubscribe();
+  }
+
+  /**
+   * Deliberately isolated from loadDashboard(): a prop firm failure must never block,
+   * delay or alter the regular trade dashboard.
+   */
+  loadPropFirmTotal(): void {
+    this.propFirmService.getPropFirms().subscribe({
+      next: (firms) => {
+        this.totalPropFirmAmount = firms.reduce(
+          (total, firm) => total + (Number(firm.amountSpent) || 0),
+          0
+        );
+      },
+      error: () => {
+        this.totalPropFirmAmount = 0;
+      },
+    });
+  }
+
+  formatPropFirmTotal(): string {
+    return formatFirmCurrency(this.totalPropFirmAmount, 'INR');
   }
 
   loadDashboard(): void {

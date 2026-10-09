@@ -33,6 +33,22 @@ export const routes: Routes = [
       { path: 'reports', loadComponent: () => import('./pages/reports/reports.component').then((m) => m.ReportsComponent) },
       { path: 'profile', loadComponent: () => import('./pages/profile/profile.component').then((m) => m.ProfileComponent) },
       { path: 'settings', loadComponent: () => import('./pages/settings/settings.component').then((m) => m.SettingsComponent) },
+
+      // ── Prop Firms workspace (separate data: propFirms / propFirmTrades) ──
+      // Component-less parent: every child renders straight into the main layout outlet,
+      // so /prop-firms is a card grid and /prop-firms/:id is the firm dashboard.
+      {
+        path: 'prop-firms',
+        children: [
+          { path: 'add', loadComponent: () => import('./prop-firms/prop-firm-form/prop-firm-form.component').then((m) => m.PropFirmFormComponent) },
+          { path: 'edit/:id', loadComponent: () => import('./prop-firms/prop-firm-form/prop-firm-form.component').then((m) => m.PropFirmFormComponent) },
+          { path: ':id', loadComponent: () => import('./prop-firms/prop-firm-dashboard/prop-firm-dashboard.component').then((m) => m.PropFirmDashboardComponent) },
+          { path: ':id/add-trade', loadComponent: () => import('./prop-firms/prop-firm-add-trade/prop-firm-add-trade.component').then((m) => m.PropFirmAddTradeComponent) },
+          { path: ':id/trades', loadComponent: () => import('./prop-firms/prop-firm-trade-list/prop-firm-trade-list.component').then((m) => m.PropFirmTradeListComponent) },
+          { path: ':id/edit-trade/:tradeId', loadComponent: () => import('./prop-firms/prop-firm-add-trade/prop-firm-add-trade.component').then((m) => m.PropFirmAddTradeComponent) },
+          { path: '', loadComponent: () => import('./prop-firms/prop-firms.component').then((m) => m.PropFirmsComponent) },
+        ],
+      },
     ],
   },
 ];

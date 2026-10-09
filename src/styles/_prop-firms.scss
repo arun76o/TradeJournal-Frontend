@@ -1,0 +1,525 @@
+@use 'variables' as *;
+
+// ─── Prop Firms card grid ────────────────────────────────────────
+
+.tj-firm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.tj-firm-card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  min-width: 0;
+  padding: $spacing-md;
+  border: 1px solid var(--tj-border);
+  border-radius: $border-radius-lg;
+  background: var(--tj-bg-secondary);
+  box-shadow: var(--tj-shadow-card);
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color $transition-fast, box-shadow $transition-fast,
+    transform $transition-fast;
+
+  &:hover {
+    border-color: var(--tj-accent);
+    box-shadow: var(--tj-shadow-lg);
+    transform: translateY(-2px);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--tj-accent);
+    outline-offset: 2px;
+  }
+}
+
+.tj-firm-card-head {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  min-width: 0;
+}
+
+.tj-firm-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: $border-radius-sm;
+  background: var(--tj-accent-subtle);
+  color: var(--tj-accent);
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.tj-firm-card-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--tj-text-primary);
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tj-firm-status-badge {
+  flex-shrink: 0;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--tj-profit-bg);
+  color: var(--tj-profit);
+  font-family: $font-family-base;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  &.failed {
+    background: var(--tj-loss-bg);
+    color: var(--tj-loss);
+  }
+}
+
+// The account-information value text is more specific, so the badge keeps its own colour
+// when it is rendered inside that cell.
+.tj-firm-info-item .value .tj-firm-status-badge {
+  color: var(--tj-profit);
+
+  &.failed {
+    color: var(--tj-loss);
+  }
+}
+
+.tj-firm-card-sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--tj-text-muted);
+}
+
+.tj-firm-card-account {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tj-firm-card-type {
+  flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.tj-firm-card-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: $spacing-sm;
+  padding-top: $spacing-sm;
+  border-top: 1px solid var(--tj-border-light);
+}
+
+.tj-firm-card-stat {
+  min-width: 0;
+
+  .label {
+    display: block;
+    font-size: 10px;
+    color: var(--tj-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 3px;
+  }
+
+  .value {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--tj-text-primary);
+    font-family: $font-family-mono;
+    overflow-wrap: anywhere;
+  }
+
+  &.highlight .value {
+    color: var(--tj-accent);
+  }
+}
+
+.tj-firm-card-add {
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  border-style: dashed;
+  background: transparent;
+  color: var(--tj-accent);
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: none;
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
+
+  &:hover {
+    background: var(--tj-accent-subtle);
+    border-color: var(--tj-accent);
+    color: var(--tj-accent);
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+// ─── Empty states ────────────────────────────────────────────────
+
+.tj-firm-empty-state {
+  background: var(--tj-bg-secondary);
+  border: 1px dashed var(--tj-border);
+  border-radius: $border-radius-lg;
+  box-shadow: var(--tj-shadow-card);
+  padding: $spacing-2xl $spacing-lg;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-sm;
+  animation: tj-slide-up 0.45s ease-out both;
+
+  > mat-icon {
+    font-size: 56px;
+    width: 56px;
+    height: 56px;
+    color: var(--tj-text-muted);
+    margin-bottom: $spacing-xs;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--tj-text-primary);
+  }
+
+  p {
+    margin: 0 0 $spacing-md;
+    max-width: 460px;
+    font-size: 14px;
+    color: var(--tj-text-muted);
+    line-height: 1.6;
+  }
+}
+
+// ─── Workspace actions ───────────────────────────────────────────
+
+.tj-firm-actions,
+.tj-firm-header-actions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.tj-firm-header-actions {
+  button {
+    white-space: nowrap;
+  }
+}
+
+// ─── Account information ─────────────────────────────────────────
+
+.tj-firm-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: $spacing-md;
+}
+
+.tj-firm-info-item {
+  padding: $spacing-md;
+  background: var(--tj-bg-tertiary);
+  border: 1px solid var(--tj-border-light);
+  border-radius: $border-radius-md;
+  min-width: 0;
+
+  .label {
+    display: block;
+    font-size: 11px;
+    color: var(--tj-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+  }
+
+  .value {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tj-text-primary);
+    font-family: $font-family-mono;
+    overflow-wrap: anywhere;
+  }
+
+  .value.plain {
+    font-family: $font-family-base;
+  }
+}
+
+// ─── Risk / limits panel ─────────────────────────────────────────
+
+.tj-firm-risk-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: $spacing-md;
+}
+
+.tj-firm-risk-item {
+  padding: $spacing-md;
+  background: var(--tj-bg-tertiary);
+  border: 1px solid var(--tj-border-light);
+  border-radius: $border-radius-md;
+
+  .risk-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: $spacing-sm;
+    margin-bottom: $spacing-sm;
+
+    .risk-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--tj-text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: var(--tj-accent);
+      }
+    }
+
+    .risk-value {
+      font-size: 13px;
+      font-weight: 700;
+      font-family: $font-family-mono;
+      color: var(--tj-text-primary);
+
+      &.positive { color: var(--tj-profit); }
+      &.negative { color: var(--tj-loss); }
+      &.warning { color: var(--tj-warning); }
+    }
+  }
+
+  .risk-track {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--tj-border);
+    overflow: hidden;
+  }
+
+  .risk-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--tj-accent);
+    transition: width $transition-base;
+
+    &.positive { background: var(--tj-profit); }
+    &.negative { background: var(--tj-loss); }
+    &.warning { background: var(--tj-warning); }
+  }
+
+  .risk-note {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--tj-text-muted);
+    line-height: 1.45;
+  }
+}
+
+.tj-firm-journal-note {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $border-radius-sm;
+  background: var(--tj-accent-subtle);
+  color: var(--tj-text-secondary);
+  font-size: 12px;
+  line-height: 1.5;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--tj-accent);
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+}
+
+// ─── Form extras ─────────────────────────────────────────────────
+
+.tj-form-error {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  border: 1px solid var(--tj-loss);
+  border-radius: $border-radius-sm;
+  background: var(--tj-loss-bg);
+  color: var(--tj-loss);
+  font-size: 13px;
+  font-weight: 500;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.tj-preview-aside {
+  padding-left: $spacing-md;
+  border-left: 1px solid var(--tj-border);
+
+  .pl-value.small {
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+// ─── Firm-scoped form extras ─────────────────────────────────────
+
+.tj-firm-context {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  margin-bottom: $spacing-md;
+  border: 1px solid var(--tj-accent);
+  background: var(--tj-accent-subtle);
+  border-radius: $border-radius-md;
+  font-size: 13px;
+  color: var(--tj-text-primary);
+  flex-wrap: wrap;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--tj-accent);
+  }
+
+  strong {
+    font-weight: 700;
+  }
+
+  .spacer {
+    flex: 1;
+  }
+
+  a {
+    color: var(--tj-accent);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// ─── Responsive ──────────────────────────────────────────────────
+
+@media (max-width: $breakpoint-tablet-max) {
+  .tj-firm-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tj-firm-info-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: $breakpoint-mobile-max) {
+  .tj-firm-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tj-firm-card {
+    padding: $spacing-sm $spacing-md;
+  }
+
+  .tj-firm-empty-state {
+    padding: $spacing-xl $spacing-md;
+  }
+
+  .tj-firm-empty-state > mat-icon {
+    font-size: 44px;
+    width: 44px;
+    height: 44px;
+  }
+
+  .tj-firm-empty-state h2 {
+    font-size: 17px;
+  }
+
+  .tj-firm-info-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-sm;
+  }
+
+  .tj-firm-risk-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+// -----------------------------------------------------------------------------
+// Prop firm dashboard vertical rhythm
+// The dashboard stacks its sections (header, account information, KPI grid,
+// risk limits, equity curve, recent trades) with one consistent gap so nothing
+// sits flush against its neighbour on desktop, tablet or mobile.
+// -----------------------------------------------------------------------------
+
+.tj-firm-dash {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  // The flex gap already provides the separation between sections, so the
+  // per-element bottom margins would otherwise stack into double spacing.
+  > .tj-page-header,
+  > .tj-kpi-grid {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: $breakpoint-mobile-max) {
+  .tj-firm-dash {
+    gap: $spacing-md;
+  }
+}

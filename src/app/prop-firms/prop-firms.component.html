@@ -1,0 +1,66 @@
+<div class="tj-page">
+  <app-page-header
+    title="Prop Firms"
+    subtitle="Each prop account stays in its own isolated workspace, separate from your regular journal"
+  ></app-page-header>
+
+  @if (isLoading) {
+    <div class="tj-loading">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading prop firms...</p>
+    </div>
+  } @else if (firms.length === 0) {
+    <div class="tj-firm-empty-state">
+      <mat-icon>account_balance</mat-icon>
+      <h2>No prop firms yet</h2>
+      <p>
+        Create a prop firm to open a separate workspace with its own balance, trades and
+        analytics.
+      </p>
+      <button mat-raised-button color="primary" (click)="addFirm()">
+        <mat-icon>add</mat-icon>
+        Add Prop Firm
+      </button>
+    </div>
+  } @else {
+    <div class="tj-firm-grid">
+      @for (firm of firms; track firm.id) {
+        <button type="button" class="tj-firm-card" (click)="openFirm(firm)">
+          <div class="tj-firm-card-head">
+            <span class="tj-firm-card-icon">
+              <mat-icon>account_balance</mat-icon>
+            </span>
+            <span class="tj-firm-card-name" [title]="firm.firmName">{{ firm.firmName }}</span>
+            <span
+              class="tj-firm-status-badge"
+              [class.failed]="statusOf(firm) === 'Failed'"
+            >
+              {{ statusOf(firm) }}
+            </span>
+          </div>
+
+          <div class="tj-firm-card-sub">
+            <span class="tj-firm-card-account">{{ firm.accountName || 'Unnamed account' }}</span>
+            <span class="tj-firm-card-type">{{ firm.accountType || 'Prop Account' }}</span>
+          </div>
+
+          <div class="tj-firm-card-stats">
+            <div class="tj-firm-card-stat">
+              <span class="label">Account Size &middot; {{ currencyOf(firm) }}</span>
+              <span class="value">{{ formatAccountSize(firm) }}</span>
+            </div>
+            <div class="tj-firm-card-stat highlight">
+              <span class="label">Amount Spent</span>
+              <span class="value">{{ formatAmountSpent(firm) }}</span>
+            </div>
+          </div>
+        </button>
+      }
+
+      <button type="button" class="tj-firm-card tj-firm-card-add" (click)="addFirm()">
+        <mat-icon>add</mat-icon>
+        <span>Add Prop Firm</span>
+      </button>
+    </div>
+  }
+</div>
