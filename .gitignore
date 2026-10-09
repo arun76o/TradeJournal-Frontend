@@ -37,6 +37,9 @@ yarn-error.log
 testem.log
 /typings
 
+# Local source archives (src.zip is a duplicate of /src, not a source file)
+*.zip
+
 # System files
 .DS_Store
 Thumbs.db
