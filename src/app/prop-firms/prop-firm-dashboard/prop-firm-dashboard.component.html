@@ -105,10 +105,7 @@
           <div class="tj-firm-info-item">
             <span class="label">Status</span>
             <span class="value plain">
-              <span
-                class="tj-firm-status-badge"
-                [class.failed]="firmStatus === 'Failed'"
-              >
+              <span class="tj-firm-status-badge" [ngClass]="firmStatusClass">
                 {{ firmStatus }}
               </span>
             </span>
@@ -202,29 +199,51 @@
           <div class="tj-firm-risk-item">
             <div class="risk-head">
               <span class="risk-label"><mat-icon>flag</mat-icon> Profit Target</span>
-              <span class="risk-value" [class.positive]="(profitTargetProgress ?? 0) >= 100">
-                {{ profitTargetAmount !== null ? formatMoney(profitTargetAmount) : 'Not set' }}
+              <span class="risk-value" [class.positive]="profitTargetReached">
+                {{ profitTargetAmount !== null ? formatMoney(profitTargetAmount) : 'Not configured' }}
               </span>
             </div>
             <div class="risk-track">
               <div
                 class="risk-fill"
-                [class.positive]="(profitTargetProgress ?? 0) >= 100"
+                [class.positive]="profitTargetReached"
                 [class.warning]="
                   (profitTargetProgress ?? 0) >= 50 && (profitTargetProgress ?? 0) < 100
                 "
                 [style.width.%]="barWidth(profitTargetProgress)"
               ></div>
             </div>
+            <div class="risk-meta">
+              <span>
+                Target:
+                <strong>
+                  {{ profitTargetAmount !== null ? formatMoney(profitTargetAmount) : 'Not configured' }}
+                </strong>
+              </span>
+              <span>
+                Recorded: <strong>{{ formatMoney(netPnl) }}</strong>
+              </span>
+              <span>
+                Usage:
+                <strong>
+                  {{ profitTargetProgress !== null ? (profitTargetProgress | number: '1.1-1') : '0.0' }}%
+                </strong>
+              </span>
+            </div>
             <div class="risk-note">
               @if (profitTargetAmount === null || profitTargetProgress === null) {
-                Set a profit target percentage when creating the firm to track progress.
+                Profit target not configured.
               } @else {
-                {{ profitTargetPercent }}% of {{ formatMoney(accountSizeValue) }} &middot;
-                {{ profitTargetProgress | number: '1.1-1' }}% reached &middot;
-                {{ formatMoney(netPnl) }} profit recorded
+                {{ profitTargetPercent }}% of account size
+                {{ formatMoney(accountSizeValue) }} &middot;
+                {{ profitTargetProgress | number: '1.1-1' }}% reached
               }
             </div>
+            @if (profitTargetReached) {
+              <div class="tj-firm-breach positive">
+                <mat-icon>check_circle</mat-icon> Profit target reached
+              </div>
+            }
           </div>
 
           <div class="tj-firm-risk-item">
@@ -241,28 +260,50 @@
             <div class="risk-track">
               <div
                 class="risk-fill"
-                [class.positive]="todayPnl >= 0 && (dailyLossUsage ?? 0) < 50"
-                [class.warning]="(dailyLossUsage ?? 0) >= 50 && (dailyLossUsage ?? 0) < 100"
-                [class.negative]="(dailyLossUsage ?? 0) >= 100"
-                [style.width.%]="dailyLossUsage === null ? 0 : (dailyLossUsage | number: '1.0-0')"
+                [class.positive]="todayPnl >= 0 && !dailyLossBreached"
+                [class.warning]="
+                  (dailyLossUsage ?? 0) >= 50 && (dailyLossUsage ?? 0) < 100
+                "
+                [class.negative]="dailyLossBreached"
+                [style.width.%]="barWidth(dailyLossUsage)"
               ></div>
             </div>
+            <div class="risk-meta">
+              <span>
+                Daily loss limit:
+                <strong>
+                  {{ dailyLossLimitAmount !== null ? formatMoney(dailyLossLimitAmount) : 'Not configured' }}
+                </strong>
+              </span>
+              <span>
+                Used: <strong>{{ formatMoney(dailyLossUsed) }}</strong>
+              </span>
+              <span>
+                Usage:
+                <strong>
+                  {{ dailyLossUsage !== null ? (dailyLossUsage | number: '1.1-1') : '0.0' }}%
+                </strong>
+              </span>
+            </div>
             <div class="risk-note">
-              @if (dailyLossUsage === null) {
-                No daily loss limit set for this account.
-              } @else if (todayPnl >= 0) {
-                Daily loss limit {{ formatMoney(firm.maximumDailyLoss || 0) }}, none used today.
+              @if (dailyLossLimitAmount === null) {
+                Daily loss limit not configured.
               } @else {
-                {{ dailyLossUsage | number: '1.1-1' }}% of the
-                {{ formatMoney(firm.maximumDailyLoss || 0) }} daily loss limit used today.
+                {{ dailyLossPercent }}% of account size
+                {{ formatMoney(accountSizeValue) }} &middot; net P&amp;L recorded today
               }
             </div>
+            @if (dailyLossBreached) {
+              <div class="tj-firm-breach">
+                <mat-icon>warning</mat-icon> Breached &mdash; daily loss limit exceeded
+              </div>
+            }
           </div>
 
           <div class="tj-firm-risk-item">
             <div class="risk-head">
               <span class="risk-label"><mat-icon>trending_down</mat-icon> Overall Drawdown</span>
-              <span class="risk-value" [class.negative]="(overallDrawdownUsage ?? 0) >= 100">
+              <span class="risk-value" [class.negative]="overallDrawdownBreached">
                 {{
                   overallDrawdownLimit !== null ? formatMoney(overallDrawdownLimit) : 'Not configured'
                 }}
@@ -274,20 +315,42 @@
                 [class.warning]="
                   (overallDrawdownUsage ?? 0) >= 50 && (overallDrawdownUsage ?? 0) < 100
                 "
-                [class.negative]="(overallDrawdownUsage ?? 0) >= 100"
+                [class.negative]="overallDrawdownBreached"
                 [class.positive]="drawdownFromInitial <= 0"
                 [style.width.%]="barWidth(overallDrawdownUsage)"
               ></div>
             </div>
+            <div class="risk-meta">
+              <span>
+                Limit:
+                <strong>
+                  {{ overallDrawdownLimit !== null ? formatMoney(overallDrawdownLimit) : 'Not configured' }}
+                </strong>
+              </span>
+              <span>
+                Actual: <strong>{{ formatMoney(drawdownFromInitial) }}</strong>
+              </span>
+              <span>
+                Usage:
+                <strong>
+                  {{ overallDrawdownUsage !== null ? (overallDrawdownUsage | number: '1.1-1') : '0.0' }}%
+                </strong>
+              </span>
+            </div>
             <div class="risk-note">
               @if (overallDrawdownLimit === null || overallDrawdownUsage === null) {
-                No overall drawdown limit configured for this account.
+                Overall drawdown limit not configured.
               } @else {
-                {{ overallDrawdownPercent }}% of {{ formatMoney(accountSizeValue) }} &middot;
-                {{ overallDrawdownUsage | number: '1.1-1' }}% of limit used &middot; Actual:
-                {{ formatMoney(drawdownFromInitial) }}
+                {{ overallDrawdownPercent }}% of account size
+                {{ formatMoney(accountSizeValue) }} &middot; measured from initial balance
+                {{ formatMoney(firm.initialBalance) }}
               }
             </div>
+            @if (overallDrawdownBreached) {
+              <div class="tj-firm-breach">
+                <mat-icon>warning</mat-icon> Breached &mdash; overall drawdown limit exceeded
+              </div>
+            }
           </div>
         </div>
 
@@ -308,20 +371,20 @@
         <p>Starting balance to current balance, in {{ currency }}</p>
       </div>
       <div class="tj-chart-body">
-        @if (hasTrades) {
-          <canvas baseChart [data]="equityChartData" [options]="equityOptions" type="line"></canvas>
-        } @else {
-          <div class="tj-firm-empty-state">
-            <mat-icon>show_chart</mat-icon>
-            <h2>No equity data yet</h2>
-            <p>Add your first prop trade to start the equity curve for this account.</p>
-            <button mat-raised-button color="primary" (click)="addTrade()">
-              <mat-icon>add</mat-icon>
-              Add Trade
-            </button>
-          </div>
-        }
+        <canvas baseChart [data]="equityChartData" [options]="equityOptions" type="line"></canvas>
       </div>
+      @if (!hasTrades) {
+        <div class="tj-card-footer tj-firm-equity-empty">
+          <span>
+            No trades recorded yet &mdash; the curve is holding at the starting balance
+            {{ formatMoney(firm.initialBalance) }}.
+          </span>
+          <button mat-raised-button color="primary" (click)="addTrade()">
+            <mat-icon>add</mat-icon>
+            Add Trade
+          </button>
+        </div>
+      }
     </div>
 
     <!-- Recent trades -->

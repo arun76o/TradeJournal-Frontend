@@ -92,6 +92,11 @@
     background: var(--tj-loss-bg);
     color: var(--tj-loss);
   }
+
+  &.passed {
+    background: var(--tj-accent-subtle);
+    color: var(--tj-accent);
+  }
 }
 
 // The account-information value text is more specific, so the badge keeps its own colour
@@ -101,6 +106,10 @@
 
   &.failed {
     color: var(--tj-loss);
+  }
+
+  &.passed {
+    color: var(--tj-accent);
   }
 }
 
@@ -349,12 +358,69 @@
     &.warning { background: var(--tj-warning); }
   }
 
+  .risk-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--tj-text-secondary);
+
+    strong {
+      font-family: $font-family-mono;
+      font-weight: 700;
+      color: var(--tj-text-primary);
+    }
+  }
+
   .risk-note {
     margin-top: 6px;
     font-size: 11px;
     color: var(--tj-text-muted);
     line-height: 1.45;
   }
+}
+
+// Shown only when a risk limit has been exceeded (or reached, for the profit target),
+// so a breached limit is never hidden behind a clamped progress bar.
+.tj-firm-breach {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 5px 9px;
+  border-radius: $border-radius-sm;
+  background: var(--tj-loss-bg);
+  color: var(--tj-loss);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  &.positive {
+    background: var(--tj-profit-bg);
+    color: var(--tj-profit);
+  }
+}
+
+// Rendered under the equity curve when the firm has no trades yet: the chart itself
+// still plots the starting balance, so this is only the call to action.
+.tj-firm-equity-empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-lg;
+  border-top: 1px solid var(--tj-border-light);
+  font-size: 12px;
+  color: var(--tj-text-muted);
 }
 
 .tj-firm-journal-note {

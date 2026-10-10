@@ -16,7 +16,11 @@ import { PropFirm } from '../../models/prop-firm.model';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { AlertService } from '../../core/services/alert.service';
 import { DashboardRefreshService } from '../../core/services/dashboard-refresh.service';
-import { PROP_FIRM_CURRENCIES } from '../../core/utils/prop-firm-analytics.util';
+import {
+  normalizePropFirmStatus,
+  PROP_FIRM_CURRENCIES,
+  PROP_FIRM_STATUSES,
+} from '../../core/utils/prop-firm-analytics.util';
 
 @Component({
   selector: 'app-prop-firm-form',
@@ -48,7 +52,7 @@ export class PropFirmFormComponent implements OnInit, OnDestroy {
   firmForm: FormGroup;
   currencies = PROP_FIRM_CURRENCIES;
   accountTypes = ['Challenge', 'Evaluation', 'Funded', 'Live', 'Demo'];
-  statuses = ['Active', 'Failed'];
+  statuses: string[] = PROP_FIRM_STATUSES;
 
   isEditMode = false;
   firmId = '';
@@ -131,7 +135,7 @@ export class PropFirmFormComponent implements OnInit, OnDestroy {
       maximumOverallDrawdown: firm.maximumOverallDrawdown ?? null,
       amountSpent: firm.amountSpent ?? 0,
       payouts: firm.payouts ?? 0,
-      status: firm.status === 'Failed' ? 'Failed' : 'Active',
+      status: normalizePropFirmStatus(firm.status),
       startDate: firm.startDate ? new Date(firm.startDate) : null,
       notes: firm.notes ?? '',
     });
@@ -170,7 +174,7 @@ export class PropFirmFormComponent implements OnInit, OnDestroy {
       maximumOverallDrawdown: this.toNumber(raw.maximumOverallDrawdown),
       amountSpent: this.toNumber(raw.amountSpent) ?? 0,
       payouts: this.toNumber(raw.payouts) ?? 0,
-      status: raw.status === 'Failed' ? 'Failed' : 'Active',
+      status: normalizePropFirmStatus(raw.status),
       startDate,
       notes: String(raw.notes ?? '').trim(),
     };

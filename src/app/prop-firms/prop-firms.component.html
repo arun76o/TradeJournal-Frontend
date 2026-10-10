@@ -31,10 +31,7 @@
               <mat-icon>account_balance</mat-icon>
             </span>
             <span class="tj-firm-card-name" [title]="firm.firmName">{{ firm.firmName }}</span>
-            <span
-              class="tj-firm-status-badge"
-              [class.failed]="statusOf(firm) === 'Failed'"
-            >
+            <span class="tj-firm-status-badge" [ngClass]="statusClassOf(firm)">
               {{ statusOf(firm) }}
             </span>
           </div>

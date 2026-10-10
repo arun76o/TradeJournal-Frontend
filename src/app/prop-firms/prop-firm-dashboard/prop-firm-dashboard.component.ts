@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { BaseChartDirective } from 'ng2-charts';
-import { ChartConfiguration } from 'chart.js';
+import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { Subscription } from 'rxjs';
 import { PropFirmService } from '../../services/prop-firm.service';
 import { PropFirmTradeService } from '../../services/prop-firm-trade.service';
@@ -21,10 +21,13 @@ import {
   computeDrawdownFromInitial,
   computeFirmDrawdown,
   computeFirmEquity,
+  computeLimitAmount,
+  computeLimitUsage,
   computePropFirmStats,
   computeTodayPnL,
   formatFirmCurrency,
   getPropTradeStatus,
+  normalizePropFirmStatus,
 } from '../../core/utils/prop-firm-analytics.util';
 
 @Component({
@@ -78,7 +81,7 @@ export class PropFirmDashboardComponent implements OnInit, OnDestroy {
       },
     ],
   };
-  equityOptions = getBaseChartOptions();
+  equityOptions: ChartOptions = getBaseChartOptions();
 
   private paramSubscription?: Subscription;
 
@@ -156,9 +159,53 @@ export class PropFirmDashboardComponent implements OnInit, OnDestroy {
           backgroundColor: 'rgba(59, 130, 246, 0.08)',
           fill: true,
           tension: 0.4,
+          showLine: true,
+          spanGaps: true,
           pointRadius: equity.data.length > 30 ? 0 : 3,
+          pointHoverRadius: 4,
         },
       ],
+    };
+    this.equityOptions = this.buildEquityOptions();
+  }
+
+  /**
+   * Prop-firm specific chart options: the shared getBaseChartOptions() has no currency
+   * formatting, so the Y axis and tooltips are formatted in the firm's account currency.
+   * The shared helper itself is left untouched for the regular dashboard.
+   */
+  private buildEquityOptions(): ChartOptions {
+    const base = getBaseChartOptions();
+    const format = (value: number) => this.formatMoney(value);
+    const scales = base.scales ?? {};
+    const plugins = base.plugins ?? {};
+
+    return {
+      ...base,
+      plugins: {
+        ...plugins,
+        tooltip: {
+          ...plugins.tooltip,
+          callbacks: {
+            ...plugins.tooltip?.callbacks,
+            label: (context) => {
+              const parsed = context.parsed as { y?: number } | number | null;
+              const value = typeof parsed === 'number' ? parsed : Number(parsed?.y ?? 0);
+              return ` ${context.dataset.label ?? 'Equity'}: ${format(value)}`;
+            },
+          },
+        },
+      },
+      scales: {
+        ...scales,
+        y: {
+          ...scales['y'],
+          ticks: {
+            ...scales['y']?.ticks,
+            callback: (value) => format(Number(value)),
+          },
+        },
+      },
     };
   }
 
@@ -196,9 +243,7 @@ export class PropFirmDashboardComponent implements OnInit, OnDestroy {
 
   /** Derived for display only: account size x percentage / 100. */
   get profitTargetAmount(): number | null {
-    const pct = this.profitTargetPercent;
-    if (pct === null || this.accountSizeValue <= 0) return null;
-    return (this.accountSizeValue * pct) / 100;
+    return computeLimitAmount(this.accountSizeValue, this.profitTargetPercent);
   }
 
   get profitTargetProgress(): number | null {
@@ -207,11 +252,25 @@ export class PropFirmDashboardComponent implements OnInit, OnDestroy {
     return (this.netPnl / amount) * 100;
   }
 
+  /** Daily loss limit stored as a PERCENTAGE of the account size (3 => 3%). */
+  get dailyLossPercent(): number | null {
+    const pct = Number(this.firm?.maximumDailyLoss ?? 0);
+    if (!Number.isFinite(pct) || pct <= 0) return null;
+    return pct;
+  }
+
+  /** Derived for display only: account size x percentage / 100. */
+  get dailyLossLimitAmount(): number | null {
+    return computeLimitAmount(this.accountSizeValue, this.dailyLossPercent);
+  }
+
+  /** Loss actually recorded today; profits never offset the daily loss counter. */
+  get dailyLossUsed(): number {
+    return Math.max(0, -this.todayPnl);
+  }
+
   get dailyLossUsage(): number | null {
-    const limit = Number(this.firm?.maximumDailyLoss ?? 0);
-    if (!limit || limit <= 0) return null;
-    const used = Math.max(0, -this.todayPnl);
-    return (used / limit) * 100;
+    return computeLimitUsage(this.dailyLossUsed, this.dailyLossLimitAmount);
   }
 
   /** Overall drawdown stored as a percentage of the account size (10 => 10%). */
@@ -223,15 +282,23 @@ export class PropFirmDashboardComponent implements OnInit, OnDestroy {
 
   /** Derived for display only: account size x percentage / 100. */
   get overallDrawdownLimit(): number | null {
-    const pct = this.overallDrawdownPercent;
-    if (pct === null || this.accountSizeValue <= 0) return null;
-    return (this.accountSizeValue * pct) / 100;
+    return computeLimitAmount(this.accountSizeValue, this.overallDrawdownPercent);
   }
 
   get overallDrawdownUsage(): number | null {
-    const limit = this.overallDrawdownLimit;
-    if (limit === null || limit <= 0) return null;
-    return (this.drawdownFromInitial / limit) * 100;
+    return computeLimitUsage(this.drawdownFromInitial, this.overallDrawdownLimit);
+  }
+
+  get dailyLossBreached(): boolean {
+    return (this.dailyLossUsage ?? 0) >= 100;
+  }
+
+  get overallDrawdownBreached(): boolean {
+    return (this.overallDrawdownUsage ?? 0) >= 100;
+  }
+
+  get profitTargetReached(): boolean {
+    return (this.profitTargetProgress ?? 0) >= 100;
   }
 
   /** Clamped 0-100 so a progress bar can never render outside its track. */
@@ -255,7 +322,14 @@ export class PropFirmDashboardComponent implements OnInit, OnDestroy {
   }
 
   get firmStatus(): string {
-    return this.firm?.status === 'Failed' ? 'Failed' : 'Active';
+    return normalizePropFirmStatus(this.firm?.status);
+  }
+
+  get firmStatusClass(): string {
+    const status = this.firmStatus;
+    if (status === 'Failed') return 'failed';
+    if (status === 'Passed') return 'passed';
+    return '';
   }
 
   getStatus(trade: PropFirmTrade): string {

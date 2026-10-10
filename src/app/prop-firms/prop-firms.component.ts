@@ -7,7 +7,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PropFirmService } from '../services/prop-firm.service';
 import { PropFirm } from '../models/prop-firm.model';
 import { PageHeaderComponent } from '../shared/components/page-header/page-header.component';
-import { formatFirmCurrency } from '../core/utils/prop-firm-analytics.util';
+import {
+  formatFirmCurrency,
+  normalizePropFirmStatus,
+} from '../core/utils/prop-firm-analytics.util';
 
 @Component({
   selector: 'app-prop-firms',
@@ -56,7 +59,14 @@ export class PropFirmsComponent implements OnInit {
   }
 
   statusOf(firm: PropFirm): string {
-    return firm.status === 'Failed' ? 'Failed' : 'Active';
+    return normalizePropFirmStatus(firm.status);
+  }
+
+  statusClassOf(firm: PropFirm): string {
+    const status = this.statusOf(firm);
+    if (status === 'Failed') return 'failed';
+    if (status === 'Passed') return 'passed';
+    return '';
   }
 
   formatAccountSize(firm: PropFirm): string {
